@@ -1,0 +1,6 @@
+@Sirefi_HostAddress = http://localhost:5201
+
+GET {{Sirefi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
