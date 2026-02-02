@@ -212,8 +212,6 @@
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/icudt_CJK.tjcz0u77k5.dat
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/icudt_EFIGS.tptq2av103.dat
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/icudt_no_CJK.lfu7j35m59.dat
-/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/BlazorApp1.5rltiop0qs.wasm
-/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/BlazorApp1.6ra2lgh8r1.pdb
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/blazor.boot.json
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/blazor.webassembly.js.gz
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/Microsoft.AspNetCore.Authorization.is84zt9n9u.wasm.gz
@@ -421,8 +419,6 @@
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/icudt_CJK.tjcz0u77k5.dat.gz
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/icudt_EFIGS.tptq2av103.dat.gz
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/icudt_no_CJK.lfu7j35m59.dat.gz
-/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/BlazorApp1.5rltiop0qs.wasm.gz
-/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/BlazorApp1.6ra2lgh8r1.pdb.gz
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/blazor.boot.json.gz
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/BlazorApp1.staticwebassets.runtime.json
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/BlazorApp1.staticwebassets.endpoints.json
@@ -886,7 +882,6 @@
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/vyxidebtbd-63fj8s7r0e.gz
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/ez6t4kk2y0-om6wn9lewf.gz
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/sexl2cdn6l-vnc9dmv67p.gz
-/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/y3zgtqxjri-mytyv71hn4.gz
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/sf4qgi0lsj-5zxoizt9rk.gz
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/dw35ekkt6n-md9yvkcqlf.gz
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/ttqe35hvy9-kjbdie3uav.gz
@@ -1096,9 +1091,6 @@
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/33zbjmm7v7-tjcz0u77k5.gz
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/jf60wa3jk8-tptq2av103.gz
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/0hs4oe2w70-lfu7j35m59.gz
-/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/rx7sjm95zc-5rltiop0qs.gz
-/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/kpn7vtgf7q-6ra2lgh8r1.gz
-/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/5jzqasczcu-ksh0kppn79.gz
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/staticwebassets.build.json
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/staticwebassets.build.json.cache
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/staticwebassets.development.json
@@ -1108,3 +1100,11 @@
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/refint/BlazorApp1.dll
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/BlazorApp1.pdb
 /home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/ref/BlazorApp1.dll
+/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/BlazorApp1.fapevn1zea.wasm
+/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/BlazorApp1.q5xr8w44mg.pdb
+/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/BlazorApp1.fapevn1zea.wasm.gz
+/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/bin/Debug/net9.0/wwwroot/_framework/BlazorApp1.q5xr8w44mg.pdb.gz
+/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/y3zgtqxjri-aaysx9fjcy.gz
+/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/rx7sjm95zc-fapevn1zea.gz
+/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/kpn7vtgf7q-q5xr8w44mg.gz
+/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/Debug/net9.0/compressed/5jzqasczcu-k8edygghzu.gz
