@@ -19,8 +19,20 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() 
-            ?? new[] { "http://localhost:3000", "http://localhost:5173" }; // Default for React/Vite dev servers
+        var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
+        
+        if (allowedOrigins == null || allowedOrigins.Length == 0)
+        {
+            if (builder.Environment.IsDevelopment())
+            {
+                // Use default development origins
+                allowedOrigins = new[] { "http://localhost:3000", "http://localhost:5173" };
+            }
+            else
+            {
+                throw new InvalidOperationException("AllowedOrigins configuration is required in production");
+            }
+        }
         
         policy.WithOrigins(allowedOrigins)
               .AllowAnyMethod()

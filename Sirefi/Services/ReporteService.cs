@@ -197,7 +197,7 @@ public class ReporteService : IReporteService
             .FirstOrDefaultAsync();
 
         int sequence = 1;
-        if (!string.IsNullOrEmpty(lastFolio))
+        if (!string.IsNullOrEmpty(lastFolio) && lastFolio.Length >= 4)
         {
             var lastSequence = lastFolio.Substring(lastFolio.Length - 4);
             if (int.TryParse(lastSequence, out int num))

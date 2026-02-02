@@ -9,7 +9,7 @@ namespace Sirefi.Controllers;
 [Authorize(Policy = "AdminOnly")]
 [ApiController]
 [Route("api/[controller]")]
-public class EdificiosController : ControllerBase
+public class EdificiosController : BaseApiController
 {
     private readonly IInfrastructureService _infrastructureService;
 
@@ -51,7 +51,7 @@ public class EdificiosController : ControllerBase
     {
         try
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var userId = GetCurrentUserId();
             var edificio = await _infrastructureService.CreateEdificio(dto, userId);
 
             return CreatedAtAction(nameof(GetEdificio), new { id = edificio.Id }, edificio);
@@ -67,7 +67,7 @@ public class EdificiosController : ControllerBase
     {
         try
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var userId = GetCurrentUserId();
             var edificio = await _infrastructureService.UpdateEdificio(id, dto, userId);
 
             return Ok(edificio);

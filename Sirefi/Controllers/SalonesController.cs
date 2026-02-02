@@ -9,7 +9,7 @@ namespace Sirefi.Controllers;
 [Authorize(Policy = "AdminOnly")]
 [ApiController]
 [Route("api/[controller]")]
-public class SalonesController : ControllerBase
+public class SalonesController : BaseApiController
 {
     private readonly IInfrastructureService _infrastructureService;
 
@@ -51,7 +51,7 @@ public class SalonesController : ControllerBase
     {
         try
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var userId = GetCurrentUserId();
             var salon = await _infrastructureService.CreateSalon(dto, userId);
 
             return CreatedAtAction(nameof(GetSalon), new { id = salon.Id }, salon);
@@ -67,7 +67,7 @@ public class SalonesController : ControllerBase
     {
         try
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var userId = GetCurrentUserId();
             var salon = await _infrastructureService.UpdateSalon(id, dto, userId);
 
             return Ok(salon);

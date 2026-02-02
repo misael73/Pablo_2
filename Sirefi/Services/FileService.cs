@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Sirefi.Data;
 using Sirefi.Models;
 
@@ -9,17 +10,24 @@ public class FileService : IFileService
 {
     private readonly FormsDbContext _context;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<FileService> _logger;
     private readonly string _uploadPath;
     private readonly long _maxFileSize;
     private readonly string[] _allowedExtensions;
 
-    public FileService(FormsDbContext context, IConfiguration configuration)
+    public FileService(FormsDbContext context, IConfiguration configuration, ILogger<FileService> logger)
     {
         _context = context;
         _configuration = configuration;
+        _logger = logger;
         
         _uploadPath = _configuration["FileUpload:UploadPath"] ?? "uploads";
-        _maxFileSize = long.Parse(_configuration["FileUpload:MaxFileSize"] ?? "2097152");
+        
+        if (!long.TryParse(_configuration["FileUpload:MaxFileSize"], out _maxFileSize))
+        {
+            _maxFileSize = 2097152; // Default 2MB
+        }
+        
         _allowedExtensions = _configuration.GetSection("FileUpload:AllowedExtensions").Get<string[]>() 
             ?? new[] { "jpg", "jpeg", "png", "pdf" };
 
@@ -133,7 +141,7 @@ public class FileService : IFileService
         {
             // Log error but don't fail the operation
             // The file is marked as deleted in the database
-            Console.WriteLine($"Warning: Could not delete physical file {fileName}: {ex.Message}");
+            _logger.LogWarning(ex, "Could not delete physical file {FileName}", fileName);
         }
 
         return true;

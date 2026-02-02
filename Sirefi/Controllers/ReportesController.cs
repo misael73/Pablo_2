@@ -9,7 +9,7 @@ namespace Sirefi.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class ReportesController : ControllerBase
+public class ReportesController : BaseApiController
 {
     private readonly IReporteService _reporteService;
     private readonly IFileService _fileService;
@@ -23,8 +23,8 @@ public class ReportesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetReportes([FromQuery] string? tipoDashboard = null)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-        var role = User.FindFirst(ClaimTypes.Role)?.Value;
+        var userId = GetCurrentUserId();
+        var role = GetCurrentUserRole();
 
         IEnumerable<Models.Reporte> reportes;
 
@@ -51,8 +51,8 @@ public class ReportesController : ControllerBase
         }
 
         // Check if user has permission to view this reporte
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-        var role = User.FindFirst(ClaimTypes.Role)?.Value;
+        var userId = GetCurrentUserId();
+        var role = GetCurrentUserRole();
 
         if (role == Constants.Roles.Reportante && reporte.IdReportante != userId)
         {
@@ -80,7 +80,7 @@ public class ReportesController : ControllerBase
     {
         try
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var userId = GetCurrentUserId();
             var reporte = await _reporteService.CreateReporte(dto, userId);
 
             // Handle file upload if present
@@ -103,7 +103,7 @@ public class ReportesController : ControllerBase
     {
         try
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var userId = GetCurrentUserId();
             var reporte = await _reporteService.UpdateReporte(id, dto, userId);
 
             return Ok(reporte);
@@ -140,8 +140,8 @@ public class ReportesController : ControllerBase
             }
 
             // Check permission
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            var userId = GetCurrentUserId();
+            var role = GetCurrentUserRole();
 
             if (role == Constants.Roles.Reportante && reporte.IdReportante != userId)
             {
