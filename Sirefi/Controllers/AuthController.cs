@@ -54,12 +54,6 @@ public class AuthController : ControllerBase
             new ClaimsPrincipal(claimsIdentity),
             authProperties);
 
-        // Store user info in session
-        HttpContext.Session.SetString("usuario_id", result.Usuario.Id.ToString());
-        HttpContext.Session.SetString("usuario_nombre", result.Usuario.Nombre);
-        HttpContext.Session.SetString("usuario_email", result.Usuario.Email);
-        HttpContext.Session.SetString("usuario_rol", result.Usuario.Rol);
-
         return Ok(result);
     }
 
@@ -67,7 +61,6 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        HttpContext.Session.Clear();
 
         return Ok(new { success = true, message = "Sesión cerrada correctamente" });
     }

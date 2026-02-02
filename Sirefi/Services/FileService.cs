@@ -120,10 +120,20 @@ public class FileService : IFileService
         archivo.Eliminado = true;
         await _context.SaveChangesAsync();
 
-        var filePath = Path.Combine(_uploadPath, fileName);
-        if (File.Exists(filePath))
+        // Try to delete physical file, but don't fail if it doesn't exist
+        try
         {
-            File.Delete(filePath);
+            var filePath = Path.Combine(_uploadPath, fileName);
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log error but don't fail the operation
+            // The file is marked as deleted in the database
+            Console.WriteLine($"Warning: Could not delete physical file {fileName}: {ex.Message}");
         }
 
         return true;

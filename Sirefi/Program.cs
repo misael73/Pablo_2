@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Sirefi;
 using Sirefi.Data;
 using Sirefi.Services;
 
@@ -16,11 +17,15 @@ builder.Services.AddOpenApi();
 // Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
+        var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() 
+            ?? new[] { "http://localhost:3000", "http://localhost:5173" }; // Default for React/Vite dev servers
+        
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -35,8 +40,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("administrador"));
-    options.AddPolicy("AdminOrTechnician", policy => policy.RequireRole("administrador", "tecnico"));
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole(Constants.Roles.Administrador));
+    options.AddPolicy("AdminOrTechnician", policy => policy.RequireRole(Constants.Roles.Administrador, Constants.Roles.Tecnico));
 });
 
 // Add session
@@ -49,6 +54,7 @@ builder.Services.AddSession(options =>
 });
 
 // Register services
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReporteService, ReporteService>();
@@ -68,7 +74,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseCors("AllowAll");
+app.UseCors("AllowFrontend");
 
 app.UseSession();
 app.UseAuthentication();

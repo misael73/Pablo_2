@@ -54,7 +54,7 @@ public class ReportesController : ControllerBase
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
         var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
-        if (role == "reportante" && reporte.IdReportante != userId)
+        if (role == Constants.Roles.Reportante && reporte.IdReportante != userId)
         {
             return Forbid();
         }
@@ -143,7 +143,7 @@ public class ReportesController : ControllerBase
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            if (role == "reportante" && reporte.IdReportante != userId)
+            if (role == Constants.Roles.Reportante && reporte.IdReportante != userId)
             {
                 return Forbid();
             }

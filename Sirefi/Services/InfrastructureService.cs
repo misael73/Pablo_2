@@ -218,6 +218,14 @@ public class InfrastructureService : IInfrastructureService
             return false;
         }
 
+        // Check if has related reportes
+        var hasReportes = await _context.Reportes
+            .AnyAsync(r => r.IdSalon == id && !r.Eliminado);
+        if (hasReportes)
+        {
+            throw new Exception("No se puede eliminar el salón porque tiene reportes asociados");
+        }
+
         _context.Salones.Remove(salon);
         await _context.SaveChangesAsync();
 

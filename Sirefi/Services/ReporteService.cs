@@ -27,7 +27,7 @@ public class ReporteService : IReporteService
             .Where(r => !r.Eliminado);
 
         // Filter by user role
-        if (role == "reportante" && userId.HasValue)
+        if (role == Constants.Roles.Reportante && userId.HasValue)
         {
             query = query.Where(r => r.IdReportante == userId.Value);
         }
@@ -82,7 +82,7 @@ public class ReporteService : IReporteService
     {
         // Get initial state (Recibido)
         var estadoInicial = await _context.Estados
-            .FirstOrDefaultAsync(e => e.Nombre == "Recibido");
+            .FirstOrDefaultAsync(e => e.Nombre == Constants.Estados.Recibido);
 
         if (estadoInicial == null)
         {
@@ -173,10 +173,10 @@ public class ReporteService : IReporteService
         var stats = new Dictionary<string, object>
         {
             ["total"] = reportes.Count,
-            ["recibidos"] = reportes.Count(r => r.IdEstadoNavigation.Nombre == "Recibido"),
-            ["en_proceso"] = reportes.Count(r => r.IdEstadoNavigation.Nombre == "En proceso"),
-            ["solucionados"] = reportes.Count(r => r.IdEstadoNavigation.Nombre == "Solucionado"),
-            ["cancelados"] = reportes.Count(r => r.IdEstadoNavigation.Nombre == "Cancelado"),
+            ["recibidos"] = reportes.Count(r => r.IdEstadoNavigation.Nombre == Constants.Estados.Recibido),
+            ["en_proceso"] = reportes.Count(r => r.IdEstadoNavigation.Nombre == Constants.Estados.EnProceso),
+            ["solucionados"] = reportes.Count(r => r.IdEstadoNavigation.Nombre == Constants.Estados.Solucionado),
+            ["cancelados"] = reportes.Count(r => r.IdEstadoNavigation.Nombre == Constants.Estados.Cancelado),
             ["por_categoria"] = reportes
                 .GroupBy(r => r.IdCategoriaNavigation.Nombre)
                 .Select(g => new { categoria = g.Key, total = g.Count() })

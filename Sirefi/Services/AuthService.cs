@@ -11,13 +11,13 @@ public class AuthService : IAuthService
 {
     private readonly FormsDbContext _context;
     private readonly IConfiguration _configuration;
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public AuthService(FormsDbContext context, IConfiguration configuration)
+    public AuthService(FormsDbContext context, IConfiguration configuration, IHttpClientFactory httpClientFactory)
     {
         _context = context;
         _configuration = configuration;
-        _httpClient = new HttpClient();
+        _httpClientFactory = httpClientFactory;
     }
 
     public async Task<LoginResponse> ValidateGoogleToken(string idToken)
@@ -100,7 +100,7 @@ public class AuthService : IAuthService
             Correo = userInfo.Email,
             Nombre = userInfo.Name,
             Foto = userInfo.Picture,
-            Rol = "reportante", // Default role
+            Rol = Constants.Roles.Reportante, // Default role
             Activo = true,
             FechaCreacion = DateTime.Now,
             UltimoAcceso = DateTime.Now
