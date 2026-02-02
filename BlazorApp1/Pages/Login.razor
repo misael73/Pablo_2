@@ -1,0 +1,118 @@
+@page "/login"
+@inject IJSRuntime JS
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@layout BlazorApp1.Layout.MinimalLayout
+
+<PageTitle>Inicio de Sesión - SIREFI</PageTitle>
+
+<div class="login-container">
+    <div class="login-card">
+        <h1 class="text-center mb-4">INICIAR SESIÓN</h1>
+        <hr />
+
+        <div id="g_id_onload"
+             data-client_id="76807928556-odta2gs029semalkn0osp9cbdt7t274k.apps.googleusercontent.com"
+             data-context="signin"
+             data-ux_mode="popup"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="rectangular"
+             data-theme="filled_blue"
+             data-text="signin_with"
+             data-size="large"
+             data-logo_alignment="left">
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger mt-3" role="alert">
+                @errorMessage
+            </div>
+        }
+
+        <hr class="mt-4" />
+    </div>
+</div>
+
+@code {
+    private string? errorMessage;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("eval", @"
+                window.handleCredentialResponse = async function(response) {
+                    console.log('Token JWT recibido:', response.credential);
+                    DotNet.invokeMethodAsync('BlazorApp1', 'HandleGoogleLogin', response.credential);
+                };
+            ");
+        }
+    }
+
+    [JSInvokable]
+    public static async Task HandleGoogleLogin(string idToken)
+    {
+        // This will be called from JavaScript
+        Console.WriteLine($"Received token: {idToken}");
+    }
+
+    private async Task LoginWithGoogle(string idToken)
+    {
+        try
+        {
+            var result = await AuthStateProvider.Login(idToken);
+            
+            if (result.Success)
+            {
+                // Redirect based on role
+                if (result.Usuario?.Rol == "administrador")
+                {
+                    Navigation.NavigateTo("/dashboard");
+                }
+                else
+                {
+                    Navigation.NavigateTo("/my-reports");
+                }
+            }
+            else
+            {
+                errorMessage = result.Error ?? "Error al iniciar sesión con Google";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+    }
+}
+
+<style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f8f9fa;
+    }
+
+    .login-card {
+        max-width: 400px;
+        width: 100%;
+        padding: 30px;
+        border-radius: 10px;
+        background-color: white;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .g_id_signin {
+        display: flex;
+        justify-content: center;
+        margin: 15px 0;
+    }
+</style>

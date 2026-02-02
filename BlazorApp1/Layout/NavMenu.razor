@@ -1,6 +1,6 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">BlazorApp1</a>
+        <a class="navbar-brand" href="">SIREFI</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -9,21 +9,57 @@
 
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
+        <AuthorizeView>
+            <Authorized>
+                <AuthorizeView Roles="administrador,tecnico" Context="adminContext">
+                    <Authorized>
+                        <div class="nav-item px-3">
+                            <NavLink class="nav-link" href="dashboard">
+                                <span class="fas fa-home" aria-hidden="true"></span> Dashboard
+                            </NavLink>
+                        </div>
+                        <div class="nav-item px-3">
+                            <NavLink class="nav-link" href="dashboard-materiales">
+                                <span class="fas fa-tools" aria-hidden="true"></span> Materiales
+                            </NavLink>
+                        </div>
+                        <div class="nav-item px-3">
+                            <NavLink class="nav-link" href="dashboard-tics">
+                                <span class="fas fa-laptop" aria-hidden="true"></span> TICs
+                            </NavLink>
+                        </div>
+                    </Authorized>
+                </AuthorizeView>
+                
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="my-reports">
+                        <span class="fas fa-list" aria-hidden="true"></span> Mis Reportes
+                    </NavLink>
+                </div>
+                
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="new-report">
+                        <span class="fas fa-plus-circle" aria-hidden="true"></span> Nuevo Reporte
+                    </NavLink>
+                </div>
+
+                <AuthorizeView Roles="administrador" Context="adminContext2">
+                    <Authorized>
+                        <hr/>
+                        <div class="nav-item px-3">
+                            <NavLink class="nav-link" href="manage-infrastructure">
+                                <span class="fas fa-building" aria-hidden="true"></span> Infraestructura
+                            </NavLink>
+                        </div>
+                        <div class="nav-item px-3">
+                            <NavLink class="nav-link" href="manage-categories">
+                                <span class="fas fa-tags" aria-hidden="true"></span> Categorías
+                            </NavLink>
+                        </div>
+                    </Authorized>
+                </AuthorizeView>
+            </Authorized>
+        </AuthorizeView>
     </nav>
 </div>
 
@@ -36,5 +72,4 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
-
 }

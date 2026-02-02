@@ -1,7 +1,31 @@
-﻿@page "/"
+@page "/"
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
 
-Welcome to your new app.
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var role = user.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            
+            if (role == "administrador" || role == "tecnico")
+            {
+                Navigation.NavigateTo("/dashboard");
+            }
+            else
+            {
+                Navigation.NavigateTo("/my-reports");
+            }
+        }
+        else
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+}

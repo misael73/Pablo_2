@@ -1,0 +1,114 @@
+@page "/my-reports"
+@attribute [Authorize]
+@inject ApiService ApiService
+
+<PageTitle>Mis Reportes - SIREFI</PageTitle>
+
+<h1 class="mb-4">Mis Reportes</h1>
+
+<div class="mb-3">
+    <a href="/new-report" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Nuevo Reporte
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        @if (loading)
+        {
+            <div class="text-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+        }
+        else if (reportes.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Título</th>
+                            <th>Categoría</th>
+                            <th>Estado</th>
+                            <th>Prioridad</th>
+                            <th>Fecha</th>
+                            <th>Ubicación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var reporte in reportes)
+                        {
+                            <tr>
+                                <td><strong>@reporte.Folio</strong></td>
+                                <td>@reporte.Titulo</td>
+                                <td>
+                                    <span class="badge bg-secondary">@reporte.Categoria</span>
+                                </td>
+                                <td>
+                                    <span class="badge" style="background-color: @reporte.EstadoColor">
+                                        @reporte.Estado
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge" style="background-color: @reporte.PrioridadColor">
+                                        @reporte.Prioridad
+                                    </span>
+                                </td>
+                                <td>@reporte.FechaReporte.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(reporte.Edificio))
+                                    {
+                                        <small>@reporte.Edificio @(!string.IsNullOrEmpty(reporte.Salon) ? $" - {reporte.Salon}" : "")</small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted">Sin ubicación</small>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="/report/@reporte.Id" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i> Ver
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No tienes reportes aún</p>
+                <a href="/new-report" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Crear tu primer reporte
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<ReporteModel> reportes = new();
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            reportes = await ApiService.GetReportes();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading reports: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+}

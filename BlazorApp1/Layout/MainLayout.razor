@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+
 <div class="page">
     <div class="sidebar">
         <NavMenu/>
@@ -6,7 +7,14 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <AuthorizeView>
+                <Authorized>
+                    <span class="me-3">👤 @context.User.Identity?.Name</span>
+                    <button class="btn btn-sm btn-outline-danger" @onclick="Logout">
+                        <i class="fas fa-sign-out-alt"></i> Salir
+                    </button>
+                </Authorized>
+            </AuthorizeView>
         </div>
 
         <article class="content px-4">
@@ -14,3 +22,14 @@
         </article>
     </main>
 </div>
+
+@code {
+    [Inject] private CustomAuthStateProvider AuthStateProvider { get; set; } = default!;
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
+
+    private async Task Logout()
+    {
+        await AuthStateProvider.Logout();
+        Navigation.NavigateTo("/login");
+    }
+}

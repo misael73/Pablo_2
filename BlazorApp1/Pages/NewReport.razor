@@ -1,0 +1,176 @@
+@page "/new-report"
+@attribute [Authorize]
+@inject ApiService ApiService
+@inject NavigationManager Navigation
+
+<PageTitle>Nuevo Reporte - SIREFI</PageTitle>
+
+<h1 class="mb-4">Nuevo Reporte</h1>
+
+<div class="card">
+    <div class="card-body">
+        <EditForm Model="@model" OnValidSubmit="@HandleSubmit">
+            <DataAnnotationsValidator />
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Edificio</label>
+                    <InputSelect class="form-select" @bind-Value="model.IdEdificio" @onchange="OnEdificioChanged">
+                        <option value="">Seleccione un edificio</option>
+                        @foreach (var edificio in edificios)
+                        {
+                            <option value="@edificio.Id">@edificio.Nombre</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Salón</label>
+                    <InputSelect class="form-select" @bind-Value="model.IdSalon" disabled="@(!model.IdEdificio.HasValue)">
+                        <option value="">Seleccione un salón</option>
+                        @foreach (var salon in salones)
+                        {
+                            <option value="@salon.Id">@salon.Nombre</option>
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Ubicación Adicional (opcional)</label>
+                <InputText class="form-control" @bind-Value="model.UbicacionAdicional" placeholder="Ej: Junto a la ventana, al fondo del salón..." />
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Categoría *</label>
+                    <InputSelect class="form-select" @bind-Value="model.IdCategoria">
+                        <option value="0">Seleccione una categoría</option>
+                        @foreach (var categoria in categorias)
+                        {
+                            <option value="@categoria.Id">@categoria.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => model.IdCategoria)" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Prioridad *</label>
+                    <InputSelect class="form-select" @bind-Value="model.IdPrioridad">
+                        <option value="0">Seleccione una prioridad</option>
+                        @foreach (var prioridad in prioridades)
+                        {
+                            <option value="@prioridad.Id">@prioridad.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => model.IdPrioridad)" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Título (opcional)</label>
+                <InputText class="form-control" @bind-Value="model.Titulo" placeholder="Breve resumen del problema" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Descripción del Problema *</label>
+                <InputTextArea class="form-control" @bind-Value="model.Descripcion" rows="5" 
+                    placeholder="Describa detalladamente el problema o falla..." />
+                <ValidationMessage For="@(() => model.Descripcion)" />
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger">@errorMessage</div>
+            }
+
+            @if (!string.IsNullOrEmpty(successMessage))
+            {
+                <div class="alert alert-success">@successMessage</div>
+            }
+
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary" @onclick="@(() => Navigation.NavigateTo("/my-reports"))">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                    @if (isSubmitting)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                    }
+                    <i class="fas fa-save"></i> Enviar Reporte
+                </button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private CreateReporteModel model = new();
+    private List<EdificioModel> edificios = new();
+    private List<SalonModel> salones = new();
+    private List<CategoriaModel> categorias = new();
+    private List<PrioridadModel> prioridades = new();
+    private bool isSubmitting = false;
+    private string? errorMessage;
+    private string? successMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            edificios = await ApiService.GetEdificios();
+            categorias = await ApiService.GetCategorias();
+            prioridades = await ApiService.GetPrioridades();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar datos: {ex.Message}";
+        }
+    }
+
+    private async Task OnEdificioChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int edificioId))
+        {
+            model.IdEdificio = edificioId;
+            salones = await ApiService.GetSalones(edificioId);
+        }
+        else
+        {
+            model.IdEdificio = null;
+            salones.Clear();
+        }
+        model.IdSalon = null;
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSubmitting = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            var result = await ApiService.CreateReporte(model);
+            if (result != null)
+            {
+                successMessage = $"Reporte creado exitosamente. Folio: {result.Folio}";
+                await Task.Delay(2000);
+                Navigation.NavigateTo("/my-reports");
+            }
+            else
+            {
+                errorMessage = "Error al crear el reporte. Por favor intente nuevamente.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}
