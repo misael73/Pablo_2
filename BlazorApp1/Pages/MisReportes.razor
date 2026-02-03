@@ -3,6 +3,7 @@
 @inject ApiService ApiService
 @inject CustomAuthStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Mis Reportes - SIREFI</PageTitle>
 
@@ -57,9 +58,14 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="section-title mb-0">Mis Reportes</h4>
-                    <a href="/nuevo-reporte" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Nuevo Reporte
-                    </a>
+                    <div>
+                        <button class="btn btn-outline-secondary me-2" @onclick="ExportToPdf" title="Exportar a PDF">
+                            <i class="bi bi-file-pdf"></i> Exportar PDF
+                        </button>
+                        <a href="/nuevo-reporte" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Nuevo Reporte
+                        </a>
+                    </div>
                 </div>
                 
                 <div class="table-responsive">
@@ -217,5 +223,35 @@
             "recibido" => "status-recibido",
             _ => "status-default"
         };
+    }
+
+    private async Task ExportToPdf()
+    {
+        try
+        {
+            var reportData = reportes.Select(r => new
+            {
+                r.Folio,
+                Reportante = currentUser?.Nombre ?? "N/A",
+                Descripcion = TruncateText(r.Titulo ?? r.Descripcion, 30),
+                Ubicacion = $"{r.EdificioNombre} - {r.SalonNombre}",
+                Categoria = r.CategoriaNombre ?? "N/A",
+                Estado = r.EstadoNombre ?? "N/A",
+                Prioridad = r.PrioridadNombre ?? "N/A",
+                Fecha = r.FechaReporte.ToString("dd/MM/yyyy")
+            }).ToList();
+
+            await JSRuntime.InvokeVoidAsync("exportToPdf", "Mis Reportes - SIREFI", reportData);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error exporting PDF: {ex.Message}");
+        }
+    }
+
+    private string TruncateText(string? text, int maxLength)
+    {
+        if (string.IsNullOrEmpty(text)) return "";
+        return text.Length <= maxLength ? text : text.Substring(0, maxLength) + "...";
     }
 }

@@ -112,7 +112,12 @@
                     <div class="card-body">
                         @if (!selectedEdificioId.HasValue)
                         {
-                            <p class="text-muted text-center">Selecciona un edificio para ver sus salones</p>
+                            <div class="text-center py-3">
+                                <p class="text-muted">Selecciona un edificio para ver sus salones</p>
+                                <button class="btn btn-outline-primary btn-sm" @onclick="ShowAddSalonGeneral">
+                                    <i class="bi bi-plus"></i> Crear Nuevo Salón
+                                </button>
+                            </div>
                         }
                         else
                         {
@@ -178,12 +183,20 @@
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label class="form-label">Código</label>
-                                <input type="text" class="form-control" @bind="editingEdificio!.Codigo" />
+                                <label class="form-label">Código *</label>
+                                <input type="text" class="form-control @(string.IsNullOrWhiteSpace(editingEdificio!.Codigo) && formSubmitted ? "is-invalid" : "")" @bind="editingEdificio!.Codigo" required />
+                                @if (string.IsNullOrWhiteSpace(editingEdificio.Codigo) && formSubmitted)
+                                {
+                                    <div class="invalid-feedback">El código es requerido</div>
+                                }
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Nombre *</label>
-                                <input type="text" class="form-control" @bind="editingEdificio.Nombre" />
+                                <input type="text" class="form-control @(string.IsNullOrWhiteSpace(editingEdificio.Nombre) && formSubmitted ? "is-invalid" : "")" @bind="editingEdificio.Nombre" required />
+                                @if (string.IsNullOrWhiteSpace(editingEdificio.Nombre) && formSubmitted)
+                                {
+                                    <div class="invalid-feedback">El nombre es requerido</div>
+                                }
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Ubicación</label>
@@ -219,8 +232,22 @@
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
+                                <label class="form-label">Edificio *</label>
+                                <select class="form-select @(editingSalon!.IdEdificio <= 0 && formSubmitted ? "is-invalid" : "")" @bind="editingSalon!.IdEdificio">
+                                    <option value="0">Seleccione un edificio...</option>
+                                    @foreach (var edificio in edificios)
+                                    {
+                                        <option value="@edificio.Id">@edificio.Codigo - @edificio.Nombre</option>
+                                    }
+                                </select>
+                                @if (editingSalon.IdEdificio <= 0 && formSubmitted)
+                                {
+                                    <div class="invalid-feedback">Debe seleccionar un edificio</div>
+                                }
+                            </div>
+                            <div class="mb-3">
                                 <label class="form-label">Código</label>
-                                <input type="text" class="form-control" @bind="editingSalon!.Codigo" />
+                                <input type="text" class="form-control" @bind="editingSalon.Codigo" />
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Nombre *</label>
@@ -281,6 +308,7 @@
     private bool showSalonModal = false;
     private EdificioDto? editingEdificio;
     private SalonDto? editingSalon;
+    private bool formSubmitted = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -338,6 +366,7 @@
     private void ShowAddEdificio()
     {
         editingEdificio = new EdificioDto { Activo = true };
+        formSubmitted = false;
         showEdificioModal = true;
     }
 
@@ -352,14 +381,17 @@
             Pisos = edificio.Pisos,
             Activo = edificio.Activo
         };
+        formSubmitted = false;
         showEdificioModal = true;
     }
 
     private async Task SaveEdificio()
     {
-        if (editingEdificio == null || string.IsNullOrWhiteSpace(editingEdificio.Nombre))
+        formSubmitted = true;
+        
+        if (editingEdificio == null || string.IsNullOrWhiteSpace(editingEdificio.Nombre) || string.IsNullOrWhiteSpace(editingEdificio.Codigo))
         {
-            ShowMessage("El nombre es requerido", true);
+            ShowMessage("El código y el nombre son requeridos", true);
             return;
         }
 
@@ -418,6 +450,14 @@
     {
         if (!selectedEdificioId.HasValue) return;
         editingSalon = new SalonDto { IdEdificio = selectedEdificioId.Value, Activo = true };
+        formSubmitted = false;
+        showSalonModal = true;
+    }
+
+    private void ShowAddSalonGeneral()
+    {
+        editingSalon = new SalonDto { Activo = true };
+        formSubmitted = false;
         showSalonModal = true;
     }
 
@@ -434,14 +474,17 @@
             Capacidad = salon.Capacidad,
             Activo = salon.Activo
         };
+        formSubmitted = false;
         showSalonModal = true;
     }
 
     private async Task SaveSalon()
     {
-        if (editingSalon == null || string.IsNullOrWhiteSpace(editingSalon.Nombre))
+        formSubmitted = true;
+        
+        if (editingSalon == null || string.IsNullOrWhiteSpace(editingSalon.Nombre) || editingSalon.IdEdificio <= 0)
         {
-            ShowMessage("El nombre es requerido", true);
+            ShowMessage("El edificio y el nombre son requeridos", true);
             return;
         }
 
@@ -501,6 +544,7 @@
         showSalonModal = false;
         editingEdificio = null;
         editingSalon = null;
+        formSubmitted = false;
     }
 
     private void ShowMessage(string msg, bool error)
