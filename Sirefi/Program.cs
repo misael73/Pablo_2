@@ -14,9 +14,16 @@ builder.Services.AddDbContext<FormsDbContext>(options =>
 // Configure CORS for Blazor WebAssembly
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowBlazorApp", policy =>
     {
-        policy.WithOrigins("http://localhost:5201") // URL del cliente Blazor
+        policy.WithOrigins(
+                "http://localhost:5201",
+                "https://localhost:7070",
+                "http://localhost:5000",
+                "https://localhost:5001",
+                "http://localhost:5050",
+                "http://localhost:5254",
+                "https://localhost:7254")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -53,7 +60,8 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+// Don't use HTTPS redirection when API is on HTTP
+// app.UseHttpsRedirection();
 
 app.UseCors("AllowBlazorApp");
 
