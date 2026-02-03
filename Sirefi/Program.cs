@@ -19,25 +19,28 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
-        
-        if (allowedOrigins == null || allowedOrigins.Length == 0)
+        if (builder.Environment.IsDevelopment())
         {
-            if (builder.Environment.IsDevelopment())
-            {
-                // Use default development origins
-                allowedOrigins = new[] { "http://localhost:3000", "http://localhost:5173" };
-            }
-            else
+            // In development, allow any origin for easier testing
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        }
+        else
+        {
+            // In production, use specific allowed origins
+            var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
+            
+            if (allowedOrigins == null || allowedOrigins.Length == 0)
             {
                 throw new InvalidOperationException("AllowedOrigins configuration is required in production");
             }
+            
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
         }
-        
-        policy.WithOrigins(allowedOrigins)
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
     });
 });
 
