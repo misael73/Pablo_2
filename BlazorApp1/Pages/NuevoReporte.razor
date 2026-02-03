@@ -232,10 +232,7 @@
 
             if (response?.Success == true)
             {
-                successMessage = response.Message ?? "Reporte creado exitosamente";
-                
-                // Redirect after 2 seconds
-                await Task.Delay(2000);
+                // Navigate immediately after success
                 NavigationManager.NavigateTo("/mis-reportes");
             }
             else

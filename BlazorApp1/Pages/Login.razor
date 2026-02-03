@@ -2,6 +2,7 @@
 @inject CustomAuthStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
+@inject IConfiguration Configuration
 
 <PageTitle>Iniciar Sesión - SIREFI</PageTitle>
 
@@ -31,7 +32,7 @@
         else
         {
             <div id="g_id_onload"
-                 data-client_id="76807928556-odta2gs029semalkn0osp9cbdt7t274k.apps.googleusercontent.com"
+                 data-client_id="@googleClientId"
                  data-context="signin"
                  data-ux_mode="popup"
                  data-callback="handleGoogleCredential"
@@ -134,6 +135,12 @@
 @code {
     private bool isLoading = false;
     private string? errorMessage;
+    private string googleClientId = "";
+    
+    protected override void OnInitialized()
+    {
+        googleClientId = Configuration["GoogleClientId"] ?? "";
+    }
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
