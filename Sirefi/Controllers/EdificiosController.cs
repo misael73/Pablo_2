@@ -3,15 +3,20 @@ using Microsoft.EntityFrameworkCore;
 using Sirefi.Data;
 using Sirefi.DTOs;
 using Sirefi.Models;
+using System.Text.RegularExpressions;
 
 namespace Sirefi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class EdificiosController : ControllerBase
+public partial class EdificiosController : ControllerBase
 {
     private readonly FormsDbContext _context;
     private readonly ILogger<EdificiosController> _logger;
+
+    // Compiled regex for code validation (alphanumeric and hyphens)
+    [GeneratedRegex(@"^[A-Z0-9\-]+$", RegexOptions.IgnoreCase)]
+    private static partial Regex CodigoRegex();
 
     public EdificiosController(FormsDbContext context, ILogger<EdificiosController> logger)
     {
@@ -115,7 +120,7 @@ public class EdificiosController : ControllerBase
                 return BadRequest(ApiResponse<EdificioDto>.Fail("El código debe tener al menos 2 caracteres"));
             }
 
-            if (!System.Text.RegularExpressions.Regex.IsMatch(dto.Codigo, @"^[A-Z0-9\-]+$", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+            if (!CodigoRegex().IsMatch(dto.Codigo))
             {
                 return BadRequest(ApiResponse<EdificioDto>.Fail("El código solo puede contener letras, números y guiones"));
             }

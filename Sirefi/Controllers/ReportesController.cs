@@ -302,11 +302,12 @@ public class ReportesController : ControllerBase
                 return BadRequest(ApiResponse<ReporteDto>.Fail("No hay estados configurados en el sistema"));
             }
 
-            // Generate folio
-            var folio = $"REP-{DateTime.Now:yyyyMMdd}-{Random.Shared.Next(1, 9999):D4}";
+            // Generate unique folio using timestamp + GUID segment for uniqueness
+            var folio = $"REP-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..8].ToUpper()}";
 
-            // Generate titulo from description
-            var titulo = dto.Titulo ?? (dto.Descripcion.Length > 200 ? dto.Descripcion.Substring(0, 200) : dto.Descripcion);
+            // Generate titulo from description (safe slicing)
+            var maxLen = Math.Min(200, dto.Descripcion.Length);
+            var titulo = dto.Titulo ?? dto.Descripcion[..maxLen];
 
             var reporte = new Reporte
             {

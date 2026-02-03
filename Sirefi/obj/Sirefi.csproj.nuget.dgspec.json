@@ -10,7 +10,7 @@
         "projectUniqueName": "/home/runner/work/Pablo_2/Pablo_2/Sirefi/Sirefi.csproj",
         "projectName": "Sirefi",
         "projectPath": "/home/runner/work/Pablo_2/Pablo_2/Sirefi/Sirefi.csproj",
-        "packagesPath": "/home/runner/.nuget/packages/",
+        "packagesPath": "/home/runner/work/Pablo_2/.codeql-scratch/dbs/csharp/working/packages",
         "outputPath": "/home/runner/work/Pablo_2/Pablo_2/Sirefi/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
@@ -44,6 +44,10 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "Google.Apis.Auth": {
+              "target": "Package",
+              "version": "[1.68.0, )"
+            },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
@@ -76,6 +80,20 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[9.0.12, 9.0.12]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.linux-x64",
+              "version": "[9.0.12, 9.0.12]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[9.0.12, 9.0.12]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"

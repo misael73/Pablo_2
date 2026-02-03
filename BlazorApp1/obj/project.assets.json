@@ -1757,7 +1757,7 @@
     ]
   },
   "packageFolders": {
-    "/home/runner/.nuget/packages/": {}
+    "/home/runner/work/Pablo_2/.codeql-scratch/dbs/csharp/working/packages": {}
   },
   "project": {
     "version": "1.0.0",
@@ -1765,7 +1765,7 @@
       "projectUniqueName": "/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/BlazorApp1.csproj",
       "projectName": "BlazorApp1",
       "projectPath": "/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/BlazorApp1.csproj",
-      "packagesPath": "/home/runner/.nuget/packages/",
+      "packagesPath": "/home/runner/work/Pablo_2/.codeql-scratch/dbs/csharp/working/packages",
       "outputPath": "/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
@@ -1833,6 +1833,14 @@
         "assetTargetFallback": true,
         "warn": true,
         "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[9.0.12, 9.0.12]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[9.0.12, 9.0.12]"
+          },
           {
             "name": "Microsoft.NETCore.App.Runtime.Mono.browser-wasm",
             "version": "[9.0.12, 9.0.12]"

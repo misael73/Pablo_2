@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Sirefi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+761a03ce548d8884cf81111c39ab86364cedc333")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+14240f2eb0eea0955d034ea23219285947bf5db9")]
 [assembly: System.Reflection.AssemblyProductAttribute("Sirefi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Sirefi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

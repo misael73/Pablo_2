@@ -247,32 +247,31 @@ public class UsuariosController : ControllerBase
     {
         try
         {
-            // In a real implementation, you would validate the Google token
-            // For now, we'll extract the user info from the token claims
-            // This is a simplified version - in production, use Google.Apis.Auth
-            
-            // Decode JWT token (simplified - in production use proper validation)
-            var parts = dto.IdToken.Split('.');
-            if (parts.Length != 3)
+            // Validate Google token using Google.Apis.Auth
+            Google.Apis.Auth.GoogleJsonWebSignature.Payload? payload;
+            try
             {
-                return BadRequest(ApiResponse<UsuarioDto>.Fail("Token de Google inválido"));
+                var settings = new Google.Apis.Auth.GoogleJsonWebSignature.ValidationSettings
+                {
+                    // Optionally add your Google Client ID here for stricter validation
+                    // Audience = new[] { "your-google-client-id" }
+                };
+                payload = await Google.Apis.Auth.GoogleJsonWebSignature.ValidateAsync(dto.IdToken, settings);
+            }
+            catch (Google.Apis.Auth.InvalidJwtException ex)
+            {
+                _logger.LogWarning(ex, "Invalid Google token received");
+                return BadRequest(ApiResponse<UsuarioDto>.Fail("Token de Google inválido o expirado"));
             }
 
-            // Decode payload
-            var payload = parts[1];
-            var paddedPayload = payload.PadRight(payload.Length + (4 - payload.Length % 4) % 4, '=');
-            var jsonBytes = Convert.FromBase64String(paddedPayload.Replace('-', '+').Replace('_', '/'));
-            var json = System.Text.Encoding.UTF8.GetString(jsonBytes);
-            var claims = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(json);
-
-            if (claims == null || !claims.ContainsKey("email"))
+            if (payload == null || string.IsNullOrEmpty(payload.Email))
             {
                 return BadRequest(ApiResponse<UsuarioDto>.Fail("No se pudo obtener información del usuario"));
             }
 
-            var email = claims["email"]?.ToString() ?? "";
-            var name = claims.GetValueOrDefault("name")?.ToString() ?? email;
-            var picture = claims.GetValueOrDefault("picture")?.ToString();
+            var email = payload.Email;
+            var name = payload.Name ?? email;
+            var picture = payload.Picture;
 
             // Find or create user
             var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Correo.ToLower() == email.ToLower());
