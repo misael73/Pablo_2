@@ -31,22 +31,8 @@
         }
         else
         {
-            <div id="g_id_onload"
-                 data-client_id="@googleClientId"
-                 data-context="signin"
-                 data-ux_mode="popup"
-                 data-callback="handleGoogleCredential"
-                 data-auto_prompt="false">
-            </div>
-            
-            <div class="g_id_signin"
-                 data-type="standard"
-                 data-shape="rectangular"
-                 data-theme="filled_blue"
-                 data-text="signin_with"
-                 data-size="large"
-                 data-logo_alignment="left">
-            </div>
+            <!-- Container for Google Sign-In button -->
+            <div class="g_id_signin"></div>
         }
         
         <hr />
@@ -95,6 +81,7 @@
         display: flex;
         justify-content: center;
         margin: 20px 0;
+        min-height: 44px;
     }
     
     .info-text {
@@ -149,8 +136,8 @@
             // Register the callback function for Google Sign-In
             await JSRuntime.InvokeVoidAsync("registerGoogleCallback", DotNetObjectReference.Create(this));
             
-            // Reload Google Sign-In script
-            await JSRuntime.InvokeVoidAsync("initGoogleSignIn");
+            // Initialize Google Sign-In with the client ID
+            await JSRuntime.InvokeVoidAsync("initGoogleSignIn", googleClientId);
         }
     }
     

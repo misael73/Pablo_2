@@ -35,27 +35,54 @@
     <script>
         // DotNet reference for Google callback
         let dotNetHelper = null;
+        let googleInitialized = false;
         
         // Register the DotNet reference from Blazor
         window.registerGoogleCallback = function(helper) {
             dotNetHelper = helper;
         };
         
-        // Initialize Google Sign-In
-        window.initGoogleSignIn = function() {
-            // Re-render Google button if needed
-            if (typeof google !== 'undefined' && google.accounts) {
-                google.accounts.id.renderButton(
-                    document.querySelector('.g_id_signin'),
-                    { theme: 'filled_blue', size: 'large', text: 'signin_with', shape: 'rectangular' }
-                );
-            }
-        };
-        
         // Global callback for Google Sign-In
         window.handleGoogleCredential = function(response) {
             if (dotNetHelper) {
                 dotNetHelper.invokeMethodAsync('HandleGoogleCredential', response.credential);
+            }
+        };
+        
+        // Initialize Google Sign-In with client ID
+        window.initGoogleSignIn = function(clientId) {
+            // Wait for Google SDK to be available
+            if (typeof google === 'undefined' || !google.accounts) {
+                // Retry after a short delay if SDK not loaded yet
+                setTimeout(function() { window.initGoogleSignIn(clientId); }, 200);
+                return;
+            }
+            
+            // Initialize Google Identity Services
+            if (!googleInitialized) {
+                google.accounts.id.initialize({
+                    client_id: clientId,
+                    callback: window.handleGoogleCredential,
+                    context: 'signin',
+                    ux_mode: 'popup',
+                    auto_select: false
+                });
+                googleInitialized = true;
+            }
+            
+            // Render the button
+            var buttonElement = document.querySelector('.g_id_signin');
+            if (buttonElement) {
+                google.accounts.id.renderButton(
+                    buttonElement,
+                    { 
+                        theme: 'filled_blue', 
+                        size: 'large', 
+                        text: 'signin_with', 
+                        shape: 'rectangular',
+                        logo_alignment: 'left'
+                    }
+                );
             }
         };
     </script>
