@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BlazorApp1</title>
+    <title>SIREFI - Sistema de Reporte de Fallas e Incidencias</title>
     <base href="/" />
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
@@ -26,6 +26,38 @@
         <a href="." class="reload">Reload</a>
         <span class="dismiss">🗙</span>
     </div>
+    
+    <!-- Google Identity Services Script -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- Custom JavaScript for Google Sign-In integration -->
+    <script>
+        // Store the Blazor component reference
+        let blazorLoginComponent = null;
+
+        // Function to register the callback from Blazor
+        function registerGoogleCallback(dotNetRef) {
+            blazorLoginComponent = dotNetRef;
+        }
+
+        // Load and initialize Google Sign-In script
+        function loadGoogleScript() {
+            // The script is already loaded via the script tag above
+            // Google will automatically render the button when the page loads
+            // and call handleGoogleCredentialResponse when user signs in
+        }
+
+        // Callback function called by Google when user signs in
+        function handleGoogleCredentialResponse(response) {
+            console.log("Google credential received");
+            if (blazorLoginComponent && response.credential) {
+                blazorLoginComponent.invokeMethodAsync('HandleGoogleLogin', response.credential)
+                    .then(() => console.log("Login handled by Blazor"))
+                    .catch(err => console.error("Error invoking Blazor method:", err));
+            }
+        }
+    </script>
+    
     <script src="_framework/blazor.webassembly.js"></script>
 </body>
 

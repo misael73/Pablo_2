@@ -1,0 +1,128 @@
+@page "/login"
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<PageTitle>Iniciar Sesión - SIREFI</PageTitle>
+
+<div class="login-container">
+    <div class="login-form">
+        <h1>INICIAR SESIÓN</h1>
+        <hr />
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                @ErrorMessage
+            </div>
+        }
+
+        <!-- Google Sign In Button Container -->
+        <div id="g_id_onload"
+             data-client_id="@GoogleClientId"
+             data-context="signin"
+             data-ux_mode="popup"
+             data-callback="handleGoogleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="rectangular"
+             data-theme="filled_blue"
+             data-text="signin_with"
+             data-size="large"
+             data-logo_alignment="left">
+        </div>
+
+        <hr />
+        <p class="text-center text-muted">
+            Sistema de Reporte de Fallas e Incidencias
+        </p>
+    </div>
+</div>
+
+<style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+    }
+
+    .login-form {
+        max-width: 400px;
+        width: 100%;
+        padding: 30px;
+        border-radius: 10px;
+        background-color: #f8f9fa;
+        box-shadow: 0px 4px 10px rgba(145, 130, 130, 0.1);
+    }
+
+    .login-form h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .login-form hr {
+        margin: 20px 0;
+    }
+
+    .g_id_signin {
+        display: flex;
+        justify-content: center;
+        margin: 15px 0;
+    }
+</style>
+
+@code {
+    private string ErrorMessage = "";
+    private DotNetObjectReference<Login>? _objRef;
+    
+    // Google Client ID - this is a public identifier and safe to include in client-side code
+    // It only identifies the app, not the secret. The secret is never exposed client-side.
+    private const string GoogleClientId = "76807928556-odta2gs029semalkn0osp9cbdt7t274k.apps.googleusercontent.com";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Register the callback function for Google Sign-In
+            _objRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("registerGoogleCallback", _objRef);
+            
+            // Load Google Identity Services script
+            await JSRuntime.InvokeVoidAsync("loadGoogleScript");
+        }
+    }
+
+    [JSInvokable]
+    public async Task HandleGoogleLogin(string credential)
+    {
+        try
+        {
+            var success = await AuthStateProvider.LoginWithGoogleAsync(credential);
+            
+            if (success)
+            {
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                ErrorMessage = "Error al iniciar sesión con Google";
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Error al procesar la autenticación: " + ex.Message;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        _objRef?.Dispose();
+    }
+}
