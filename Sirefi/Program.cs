@@ -12,15 +12,46 @@ builder.Services.AddDbContext<FormsDbContext>(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi();
-// Configure CORS
+
+// Configure Swagger
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { 
+        Title = "SIREFI API", 
+        Version = "v1",
+        Description = "API para el Sistema de Reportes de Infraestructura (SIREFI)"
+    });
+});
+
+// Configure CORS - Simplified for development
 builder.Services.AddCors(options => 
 {
-    options.AddPolicy("AllowFrontend",
-        policy => policy.AllowAnyOrigin()
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials());
+    options.AddDefaultPolicy(policy => 
+    {
+        if (builder.Environment.IsDevelopment())
+        {
+            // En desarrollo: Permitir orígenes específicos con credenciales
+            policy.WithOrigins(
+                    "http://localhost:5107",
+                    "https://localhost:7070",
+                    "http://localhost:5173",
+                    "http://localhost:3000"
+                  )
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        }
+        else
+        {
+            // En producción: Configurar según necesidades
+            var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() 
+                ?? Array.Empty<string>();
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        }
+    });
 });
 
 // Add Authentication
@@ -61,14 +92,19 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "SIREFI API v1");
+        c.RoutePrefix = "swagger"; // Accesible en /swagger
+    });
     app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseCors("AllowFrontend");
+app.UseCors();
 
 app.UseSession();
 app.UseAuthentication();
