@@ -2,6 +2,24 @@
 
 ## 🚨 Quick Error Reference
 
+### Build Errors - NETSDK1004
+
+```
+ERROR: Assets file 'obj/project.assets.json' not found. 
+Run a NuGet package restore to generate this file.
+```
+
+**Quick Fix**:
+```bash
+cd BlazorApp1  # or cd Sirefi
+dotnet restore
+dotnet build
+```
+
+**See**: `BUILD_TROUBLESHOOTING.md` for complete guide
+
+---
+
 ### Connection Refused Errors
 
 ```
@@ -134,6 +152,7 @@ For more details, see:
 | Issue | Document |
 |-------|----------|
 | How to run | `RUNNING_THE_APP.md` |
+| Build errors | `BUILD_TROUBLESHOOTING.md` ← NEW |
 | Port configuration | `FIX_CONNECTION_ERROR.md` |
 | CORS & Blazor errors | `FIX_CORS_AND_BLAZOR_ERRORS.md` |
 | System architecture | `CONNECTION_ARCHITECTURE.md` |
