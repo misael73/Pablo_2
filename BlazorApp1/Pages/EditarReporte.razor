@@ -278,7 +278,7 @@
                 IdPrioridad = editModel.IdPrioridad,
                 IdAsignadoA = editModel.IdAsignadoA,
                 Comentario = editModel.Comentario,
-                IdUsuarioActualizacion = currentUser.Id
+                ActualizadoPor = currentUser.Id
             };
 
             var response = await ApiService.UpdateReporteAsync(Id, updateDto);

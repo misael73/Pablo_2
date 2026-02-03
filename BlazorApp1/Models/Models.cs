@@ -80,7 +80,7 @@ public class UpdateReporteDto
     public int IdPrioridad { get; set; }
     public int? IdAsignadoA { get; set; }
     public string? Comentario { get; set; }
-    public int IdUsuarioActualizacion { get; set; }
+    public int ActualizadoPor { get; set; }
 }
 
 public class CategoriaDto
