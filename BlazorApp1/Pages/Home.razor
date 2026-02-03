@@ -1,7 +1,47 @@
 ﻿@page "/"
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
 
-<PageTitle>Home</PageTitle>
+<PageTitle>SIREFI - Sistema de Reporte de Fallas e Incidencias</PageTitle>
 
-<h1>Hello, world!</h1>
+@if (isLoading)
+{
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+}
+else if (isAuthenticated)
+{
+    <div class="container mt-5 text-center">
+        <h1>Bienvenido a SIREFI</h1>
+        <p class="lead">Sistema de Reporte de Fallas e Incidencias</p>
+        <a href="/mis-reportes" class="btn btn-primary btn-lg mt-3">
+            <i class="bi bi-list-check"></i> Ver Mis Reportes
+        </a>
+    </div>
+}
+else
+{
+    <div class="container mt-5 text-center">
+        <h1>SIREFI</h1>
+        <p class="lead">Sistema de Reporte de Fallas e Incidencias</p>
+        <p>Inicia sesión para continuar</p>
+        <a href="/login" class="btn btn-primary btn-lg mt-3">
+            <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+        </a>
+    </div>
+}
 
-Welcome to your new app.
+@code {
+    private bool isLoading = true;
+    private bool isAuthenticated = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await AuthStateProvider.GetCurrentUserAsync();
+        isAuthenticated = user != null;
+        isLoading = false;
+    }
+}

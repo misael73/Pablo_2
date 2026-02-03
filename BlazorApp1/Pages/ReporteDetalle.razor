@@ -1,0 +1,321 @@
+@page "/reporte/{Id:int}"
+@attribute [Authorize]
+@inject ApiService ApiService
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Detalle de Reporte - SIREFI</PageTitle>
+
+<div class="container mt-4">
+    @if (isLoading)
+    {
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando reporte...</p>
+        </div>
+    }
+    else if (reporte == null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> Reporte no encontrado
+        </div>
+        <a href="/mis-reportes" class="btn btn-primary">
+            <i class="bi bi-arrow-left"></i> Volver a Mis Reportes
+        </a>
+    }
+    else
+    {
+        <div class="row">
+            <!-- Report Details -->
+            <div class="col-md-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-file-earmark-text"></i> Reporte @reporte.Folio
+                        </h4>
+                        <span class="badge @GetStatusClass(reporte.EstadoNombre) fs-6">
+                            @reporte.EstadoNombre
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@(reporte.Titulo ?? "Sin título")</h5>
+                        
+                        <div class="mb-4">
+                            <p class="card-text">@reporte.Descripcion</p>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Ubicación</h6>
+                                <p>
+                                    <i class="bi bi-building"></i> @reporte.EdificioNombre
+                                    @if (!string.IsNullOrEmpty(reporte.SalonNombre))
+                                    {
+                                        <span> - @reporte.SalonNombre</span>
+                                    }
+                                </p>
+                                @if (!string.IsNullOrEmpty(reporte.UbicacionAdicional))
+                                {
+                                    <p class="text-muted small">@reporte.UbicacionAdicional</p>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Categoría</h6>
+                                <p><i class="bi bi-tag"></i> @reporte.CategoriaNombre</p>
+                                @if (!string.IsNullOrEmpty(reporte.Subcategoria))
+                                {
+                                    <p class="text-muted small">@reporte.Subcategoria</p>
+                                }
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Prioridad</h6>
+                                <span class="badge" style="background-color: @(reporte.PrioridadColor ?? "#6c757d")">
+                                    @reporte.PrioridadNombre
+                                </span>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Técnico Asignado</h6>
+                                <p>@(reporte.TecnicoNombre ?? "Sin asignar")</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">
+                            <i class="bi bi-calendar"></i> Reportado: @reporte.FechaReporte.ToString("dd/MM/yyyy HH:mm")
+                            @if (reporte.FechaAsignacion.HasValue)
+                            {
+                                <span class="ms-3">
+                                    <i class="bi bi-person-check"></i> Asignado: @reporte.FechaAsignacion.Value.ToString("dd/MM/yyyy HH:mm")
+                                </span>
+                            }
+                            @if (reporte.FechaFinalizacion.HasValue)
+                            {
+                                <span class="ms-3">
+                                    <i class="bi bi-check-circle"></i> Finalizado: @reporte.FechaFinalizacion.Value.ToString("dd/MM/yyyy HH:mm")
+                                </span>
+                            }
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="card shadow">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-chat-dots"></i> Comentarios y Acciones
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @if (comentarios.Any())
+                        {
+                            @foreach (var comentario in comentarios)
+                            {
+                                <div class="comment-item mb-3 p-3 bg-light rounded">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>@comentario.UsuarioNombre</strong>
+                                        <small class="text-muted">@comentario.FechaComentario.ToString("dd/MM/yyyy HH:mm")</small>
+                                    </div>
+                                    <p class="mb-0 mt-2">@comentario.Comentario</p>
+                                    @if (comentario.Tipo == "accion")
+                                    {
+                                        <span class="badge bg-info mt-1">Acción del sistema</span>
+                                    }
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted text-center">No hay comentarios registrados</p>
+                        }
+
+                        <!-- Add Comment Form -->
+                        <hr />
+                        <div class="mt-3">
+                            <h6>Agregar Comentario</h6>
+                            <div class="input-group">
+                                <textarea class="form-control" rows="2" @bind="nuevoComentario" 
+                                          placeholder="Escribe un comentario..."></textarea>
+                                <button class="btn btn-primary" @onclick="AddComentarioAsync" disabled="@isAddingComment">
+                                    @if (isAddingComment)
+                                    {
+                                        <span class="spinner-border spinner-border-sm"></span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-send"></i>
+                                    }
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-md-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">Información del Reporte</h6>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Folio</span>
+                            <strong>@reporte.Folio</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Estado</span>
+                            <span class="badge @GetStatusClass(reporte.EstadoNombre)">@reporte.EstadoNombre</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Prioridad</span>
+                            <span class="badge" style="background-color: @(reporte.PrioridadColor ?? "#6c757d")">
+                                @reporte.PrioridadNombre
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Reportado por</span>
+                            <span>@reporte.ReportanteNombre</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <a href="/mis-reportes" class="btn btn-secondary w-100">
+                    <i class="bi bi-arrow-left"></i> Volver a Mis Reportes
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .comment-item {
+        border-left: 3px solid #6c63ff;
+    }
+    
+    .status-resuelto {
+        background-color: #00c851;
+    }
+    
+    .status-enproceso {
+        background-color: #ffeb3b;
+        color: black;
+    }
+    
+    .status-recibido {
+        background-color: #ff4444;
+    }
+    
+    .status-default {
+        background-color: #6c757d;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private ReporteDto? reporte;
+    private List<ComentarioDto> comentarios = new();
+    private UsuarioDto? currentUser;
+    private bool isLoading = true;
+    private string nuevoComentario = "";
+    private bool isAddingComment = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthStateProvider.GetCurrentUserAsync();
+
+        if (currentUser == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+
+        try
+        {
+            // Load report
+            var response = await ApiService.GetReporteAsync(Id);
+            if (response?.Success == true && response.Data != null)
+            {
+                reporte = response.Data;
+            }
+
+            // Load comments
+            var commentsResponse = await ApiService.GetComentariosAsync(Id);
+            if (commentsResponse?.Success == true && commentsResponse.Data != null)
+            {
+                comentarios = commentsResponse.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+
+        isLoading = false;
+    }
+
+    private async Task AddComentarioAsync()
+    {
+        if (string.IsNullOrWhiteSpace(nuevoComentario) || currentUser == null)
+            return;
+
+        isAddingComment = true;
+
+        try
+        {
+            var newComment = new CreateComentarioDto
+            {
+                IdReporte = Id,
+                IdUsuario = currentUser.Id,
+                Comentario = nuevoComentario,
+                Tipo = "comentario",
+                Publico = true
+            };
+
+            var response = await ApiService.CreateComentarioAsync(newComment);
+
+            if (response?.Success == true)
+            {
+                nuevoComentario = "";
+                // Reload comments
+                var commentsResponse = await ApiService.GetComentariosAsync(Id);
+                if (commentsResponse?.Success == true && commentsResponse.Data != null)
+                {
+                    comentarios = commentsResponse.Data;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error adding comment: {ex.Message}");
+        }
+
+        isAddingComment = false;
+    }
+
+    private string GetStatusClass(string? estado)
+    {
+        return estado?.ToLower() switch
+        {
+            "resuelto" => "status-resuelto",
+            "en proceso" => "status-enproceso",
+            "recibido" => "status-recibido",
+            _ => "status-default"
+        };
+    }
+}

@@ -1,15 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BlazorApp1</title>
+    <title>SIREFI - Sistema de Reporte de Fallas e Incidencias</title>
     <base href="/" />
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="BlazorApp1.styles.css" rel="stylesheet" />
+    
+    <!-- Google Sign-In SDK -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
 <body>
@@ -27,6 +31,34 @@
         <span class="dismiss">🗙</span>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
+    
+    <script>
+        // DotNet reference for Google callback
+        let dotNetHelper = null;
+        
+        // Register the DotNet reference from Blazor
+        window.registerGoogleCallback = function(helper) {
+            dotNetHelper = helper;
+        };
+        
+        // Initialize Google Sign-In
+        window.initGoogleSignIn = function() {
+            // Re-render Google button if needed
+            if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.renderButton(
+                    document.querySelector('.g_id_signin'),
+                    { theme: 'filled_blue', size: 'large', text: 'signin_with', shape: 'rectangular' }
+                );
+            }
+        };
+        
+        // Global callback for Google Sign-In
+        window.handleGoogleCredential = function(response) {
+            if (dotNetHelper) {
+                dotNetHelper.invokeMethodAsync('HandleGoogleCredential', response.credential);
+            }
+        };
+    </script>
 </body>
 
 </html>
