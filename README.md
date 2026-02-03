@@ -47,7 +47,12 @@ dotnet run
 Escucha en: https://localhost:7070
 
 #### 4. Acceder
-Abrir navegador en: **https://localhost:7070**
+
+**Aplicación Frontend**: https://localhost:7070
+
+**Swagger UI (Documentación API)**: http://localhost:5201/swagger
+
+> 💡 **Tip**: Usa Swagger UI para probar todos los endpoints de la API de forma interactiva. Ver [SWAGGER_GUIDE.md](SWAGGER_GUIDE.md) para más información.
 
 ---
 
@@ -55,6 +60,7 @@ Abrir navegador en: **https://localhost:7070**
 
 ### 🚦 Guías de Inicio
 - **[RUNNING_THE_APP.md](RUNNING_THE_APP.md)** - Cómo ejecutar la aplicación
+- **[SWAGGER_GUIDE.md](SWAGGER_GUIDE.md)** - Guía completa de Swagger UI para probar la API ⭐
 - **[QUICK_FIX_GUIDE.md](QUICK_FIX_GUIDE.md)** - Soluciones rápidas a errores comunes
 
 ### 🔧 Solución de Problemas
