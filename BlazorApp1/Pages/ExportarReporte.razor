@@ -1,0 +1,426 @@
+@page "/exportar-reporte/{Id:int}"
+@attribute [Authorize]
+@inject ApiService ApiService
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+@if (isLoading)
+{
+    <div style="text-align: center; padding: 50px;">
+        <p>Cargando documento...</p>
+    </div>
+}
+else if (reporte == null)
+{
+    <div style="text-align: center; padding: 50px;">
+        <p style="color: red;">Reporte no encontrado</p>
+        <a href="/mis-reportes">Volver</a>
+    </div>
+}
+else
+{
+    <!-- Print-ready document -->
+    <style>
+        @@page {
+            size: letter;
+            margin: 2cm;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.4;
+            color: #000;
+            margin: 0;
+            padding: 0;
+            background-color: white;
+        }
+        
+        .print-document {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+        }
+        
+        .print-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #003366;
+            padding-bottom: 15px;
+        }
+        
+        .print-header h1 {
+            margin: 0;
+            color: #003366;
+            font-size: 20pt;
+            text-transform: uppercase;
+        }
+        
+        .print-header h2 {
+            margin: 5px 0 0 0;
+            color: #666;
+            font-size: 14pt;
+            font-weight: normal;
+        }
+        
+        .logo-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo-section h3 {
+            margin: 0;
+            color: #003366;
+        }
+        
+        .logo-section h4 {
+            margin: 5px 0;
+            color: #003366;
+        }
+        
+        .info-section {
+            margin-bottom: 20px;
+        }
+        
+        .info-row {
+            display: table;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .info-label {
+            display: table-cell;
+            width: 30%;
+            font-weight: bold;
+            padding: 8px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            vertical-align: top;
+        }
+        
+        .info-value {
+            display: table-cell;
+            width: 70%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-left: none;
+            vertical-align: top;
+        }
+        
+        .section-title {
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 12pt;
+        }
+        
+        .description-box {
+            border: 1px solid #ccc;
+            padding: 15px;
+            min-height: 100px;
+            background-color: #fafafa;
+            white-space: pre-wrap;
+        }
+        
+        .signature-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .signature-box {
+            width: 45%;
+            text-align: center;
+            margin-top: 60px;
+        }
+        
+        .signature-line {
+            border-top: 2px solid #000;
+            margin-top: 5px;
+            padding-top: 5px;
+        }
+        
+        .print-footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 9pt;
+            color: #666;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .status-recibido { background-color: #ff4444; color: white; }
+        .status-proceso { background-color: #ffeb3b; color: black; }
+        .status-solucionado { background-color: #00c851; color: white; }
+        .status-cancelado { background-color: #999; color: white; }
+        
+        .priority-alta { color: #ff0000; font-weight: bold; }
+        .priority-media { color: #ff9800; font-weight: bold; }
+        .priority-baja { color: #4caf50; font-weight: bold; }
+        
+        .no-print {
+            margin-bottom: 20px;
+            text-align: right;
+            padding: 10px;
+            background-color: #f5f5f5;
+        }
+        
+        .no-print button {
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        
+        .btn-print {
+            background-color: #003366;
+            color: white;
+        }
+        
+        .btn-close {
+            background-color: #666;
+            color: white;
+        }
+        
+        @@media print {
+            .no-print { display: none !important; }
+            body { padding: 0; }
+            .print-document { max-width: none; padding: 0; }
+        }
+    </style>
+
+    <div class="print-document">
+        <!-- Print Button -->
+        <div class="no-print">
+            <button class="btn-print" onclick="window.print()">
+                🖨️ Imprimir / Guardar como PDF
+            </button>
+            <button class="btn-close" onclick="history.back()">
+                ✖ Cerrar
+            </button>
+        </div>
+
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <h3>TECNOLÓGICO NACIONAL DE MÉXICO</h3>
+            <h4>INSTITUTO TECNOLÓGICO DE CD. SERDÁN</h4>
+        </div>
+
+        <!-- Header -->
+        <div class="print-header">
+            <h1>Solicitud de Mantenimiento</h1>
+            <h2>Sistema de Reporte de Fallas e Incidencias (SIREFI)</h2>
+        </div>
+
+        <!-- Report Information -->
+        <div class="info-section">
+            <div class="info-row">
+                <div class="info-label">FOLIO:</div>
+                <div class="info-value"><strong>@reporte.Folio</strong></div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">FECHA DE REPORTE:</div>
+                <div class="info-value">@reporte.FechaReporte.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">REPORTA:</div>
+                <div class="info-value">
+                    @reporte.ReportanteNombre<br>
+                    <small>@reporte.ReportanteCorreo</small>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">ÁREA / UBICACIÓN:</div>
+                <div class="info-value">@reporte.EdificioNombre - @(reporte.SalonNombre ?? "N/A")</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">CATEGORÍA:</div>
+                <div class="info-value">@reporte.CategoriaNombre</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">PRIORIDAD:</div>
+                <div class="info-value">
+                    <span class="@GetPriorityClass(reporte.PrioridadNombre)">
+                        @reporte.PrioridadNombre
+                    </span>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">ESTATUS:</div>
+                <div class="info-value">
+                    <span class="status-badge @GetStatusClass(reporte.EstadoNombre)">
+                        @reporte.EstadoNombre
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Problem Description -->
+        <div class="section-title">DESCRIPCIÓN DEL PROBLEMA</div>
+        <div class="description-box">
+            @reporte.Descripcion
+        </div>
+
+        <!-- Service/Action Details -->
+        @if (!string.IsNullOrEmpty(ultimaAccion))
+        {
+            <div class="section-title">SERVICIO REALIZADO / ACCIONES TOMADAS</div>
+            <div class="description-box">
+                @ultimaAccion
+                @if (!string.IsNullOrEmpty(fechaAccion))
+                {
+                    <br /><br /><small><strong>Fecha:</strong> @fechaAccion</small>
+                }
+            </div>
+        }
+
+        <!-- Technical Details -->
+        <div class="info-section" style="margin-top: 20px;">
+            @if (reporte.FechaAsignacion.HasValue)
+            {
+                <div class="info-row">
+                    <div class="info-label">FECHA DE ASIGNACIÓN:</div>
+                    <div class="info-value">@reporte.FechaAsignacion.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                </div>
+            }
+            
+            @if (reporte.FechaFinalizacion.HasValue)
+            {
+                <div class="info-row">
+                    <div class="info-label">FECHA DE SOLUCIÓN:</div>
+                    <div class="info-value">@reporte.FechaFinalizacion.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                </div>
+            }
+            
+            @if (!string.IsNullOrEmpty(reporte.TecnicoNombre))
+            {
+                <div class="info-row">
+                    <div class="info-label">TÉCNICO ASIGNADO:</div>
+                    <div class="info-value">@reporte.TecnicoNombre</div>
+                </div>
+            }
+        </div>
+
+        <!-- Signatures -->
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line">
+                    <strong>SOLICITANTE</strong><br />
+                    @reporte.ReportanteNombre
+                </div>
+            </div>
+            
+            <div class="signature-box">
+                <div class="signature-line">
+                    <strong>TÉCNICO RESPONSABLE</strong><br />
+                    @(string.IsNullOrEmpty(reporte.TecnicoNombre) ? "______________________" : reporte.TecnicoNombre)
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="print-footer">
+            <p><strong>Sistema de Reporte de Fallas e Incidencias (SIREFI)</strong></p>
+            <p>Instituto Tecnológico de Cd. Serdán - Tecnológico Nacional de México</p>
+            <p>Documento generado el @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private ReporteDto? reporte;
+    private bool isLoading = true;
+    private string ultimaAccion = "";
+    private string fechaAccion = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var currentUser = await AuthStateProvider.GetCurrentUserAsync();
+
+        if (currentUser == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+
+        try
+        {
+            // Load report
+            var response = await ApiService.GetReporteAsync(Id);
+            if (response?.Success == true && response.Data != null)
+            {
+                reporte = response.Data;
+            }
+
+            // Load latest comment
+            var commentsResponse = await ApiService.GetComentariosAsync(Id);
+            if (commentsResponse?.Success == true && commentsResponse.Data != null && commentsResponse.Data.Any())
+            {
+                var latestComment = commentsResponse.Data.FirstOrDefault();
+                if (latestComment != null)
+                {
+                    ultimaAccion = latestComment.Comentario ?? "";
+                    fechaAccion = latestComment.FechaComentario.ToString("dd/MM/yyyy HH:mm");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+
+        isLoading = false;
+    }
+
+    private string GetStatusClass(string? estado)
+    {
+        return estado?.ToLower() switch
+        {
+            "resuelto" => "status-solucionado",
+            "en proceso" => "status-proceso",
+            "recibido" => "status-recibido",
+            "cancelado" => "status-cancelado",
+            _ => ""
+        };
+    }
+
+    private string GetPriorityClass(string? prioridad)
+    {
+        return prioridad?.ToLower() switch
+        {
+            "alta" => "priority-alta",
+            "media" => "priority-media",
+            "baja" => "priority-baja",
+            _ => ""
+        };
+    }
+}
