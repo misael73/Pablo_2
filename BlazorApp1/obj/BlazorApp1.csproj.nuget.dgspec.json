@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/misa/RiderProjects/Sirefi/BlazorApp1/BlazorApp1.csproj": {}
+    "/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/BlazorApp1.csproj": {}
   },
   "projects": {
-    "/home/misa/RiderProjects/Sirefi/BlazorApp1/BlazorApp1.csproj": {
+    "/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/BlazorApp1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/misa/RiderProjects/Sirefi/BlazorApp1/BlazorApp1.csproj",
+        "projectUniqueName": "/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/BlazorApp1.csproj",
         "projectName": "BlazorApp1",
-        "projectPath": "/home/misa/RiderProjects/Sirefi/BlazorApp1/BlazorApp1.csproj",
-        "packagesPath": "/home/misa/.nuget/packages/",
-        "outputPath": "/home/misa/RiderProjects/Sirefi/BlazorApp1/obj/",
+        "projectPath": "/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/BlazorApp1.csproj",
+        "packagesPath": "/home/runner/.nuget/packages/",
+        "outputPath": "/home/runner/work/Pablo_2/Pablo_2/BlazorApp1/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/misa/.nuget/NuGet/NuGet.Config"
+          "/home/runner/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -38,12 +38,16 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.100"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Components.Authorization": {
+              "target": "Package",
+              "version": "[9.0.11, )"
+            },
             "Microsoft.AspNetCore.Components.WebAssembly": {
               "target": "Package",
               "version": "[9.0.11, )"
@@ -53,16 +57,20 @@
               "target": "Package",
               "version": "[9.0.11, )"
             },
+            "Microsoft.Extensions.Http": {
+              "target": "Package",
+              "version": "[9.0.1, )"
+            },
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.11, )",
+              "version": "[9.0.12, )",
               "autoReferenced": true
             },
             "Microsoft.NET.Sdk.WebAssembly.Pack": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.11, )",
+              "version": "[9.0.12, )",
               "autoReferenced": true
             }
           },
@@ -79,12 +87,8 @@
           "warn": true,
           "downloadDependencies": [
             {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[9.0.11, 9.0.11]"
-            },
-            {
               "name": "Microsoft.NETCore.App.Runtime.Mono.browser-wasm",
-              "version": "[9.0.11, 9.0.11]"
+              "version": "[9.0.12, 9.0.12]"
             }
           ],
           "frameworkReferences": {
@@ -92,7 +96,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.112/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.310/PortableRuntimeIdentifierGraph.json"
         }
       },
       "runtimes": {
