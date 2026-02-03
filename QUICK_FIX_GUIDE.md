@@ -39,14 +39,17 @@ ERROR: Failed to load resource: net::ERR_CONNECTION_REFUSED
 
 ```
 ERROR: Access to XMLHttpRequest has been blocked by CORS policy
+ERROR: No 'Access-Control-Allow-Origin' header is present
 ```
 
 **Quick Fix**:
-- ✅ CORS now allows any origin in development
-- ✅ Restart backend after changes
-- ✅ Clear browser cache
+1. ✅ Backend uses specific origins with credentials
+2. ✅ Restart backend: `cd Sirefi && dotnet run`
+3. ✅ Clear browser cache (Ctrl+Shift+Delete)
+4. ✅ Reload page
 
-**See**: `FIX_CORS_AND_BLAZOR_ERRORS.md` for details
+**See**: `FIX_CORS_CREDENTIALS_ERROR.md` for credentials-specific CORS
+**See**: `FIX_CORS_AND_BLAZOR_ERRORS.md` for general CORS issues
 
 ---
 
@@ -152,13 +155,20 @@ For more details, see:
 | Issue | Document |
 |-------|----------|
 | How to run | `RUNNING_THE_APP.md` |
-| Build errors | `BUILD_TROUBLESHOOTING.md` ← NEW |
+| Build errors | `BUILD_TROUBLESHOOTING.md` |
+| Specific build error | `FIX_NETSDK1004_ERROR.md` |
 | Port configuration | `FIX_CONNECTION_ERROR.md` |
+| CORS with credentials | `FIX_CORS_CREDENTIALS_ERROR.md` ← NEW |
 | CORS & Blazor errors | `FIX_CORS_AND_BLAZOR_ERRORS.md` |
+| Google Sign-In | `FIX_GOOGLE_SIGNIN_BUTTON.md` |
+| Auth caching | `FIX_REPEATED_AUTH_ERRORS.md` |
+| SSL certificate | `FIX_SSL_CERTIFICATE_ERROR.md` |
+| All fixes summary | `FIXES_SUMMARY.md` |
 | System architecture | `CONNECTION_ARCHITECTURE.md` |
 | Frontend migration | `FRONTEND_MIGRATION_SUMMARY.md` |
 | Backend migration | `MIGRATION_SUMMARY.md` |
 | Complete overview | `COMPLETE_MIGRATION_SUMMARY.md` |
+| Project status | `FINAL_STATUS.md` |
 
 ---
 
