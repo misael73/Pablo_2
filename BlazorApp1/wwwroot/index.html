@@ -90,46 +90,60 @@
             }
         };
         
-        // PDF Export function
+        // PDF Export function for reports list
         window.exportToPdf = function(title, data) {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('landscape');
-            
-            // Add title
-            doc.setFontSize(18);
-            doc.setTextColor(40, 40, 40);
-            doc.text(title, 14, 22);
-            
-            // Add date
-            doc.setFontSize(11);
-            doc.setTextColor(100);
-            doc.text('Generado: ' + new Date().toLocaleDateString('es-MX'), 14, 30);
-            
-            // Create table
-            const headers = [['Folio', 'Reportante', 'Descripción', 'Ubicación', 'Categoría', 'Estado', 'Prioridad', 'Fecha']];
-            const rows = data.map(item => [
-                item.folio || '',
-                item.reportante || '',
-                item.descripcion || '',
-                item.ubicacion || '',
-                item.categoria || '',
-                item.estado || '',
-                item.prioridad || '',
-                item.fecha || ''
-            ]);
-            
-            doc.autoTable({
-                head: headers,
-                body: rows,
-                startY: 35,
-                styles: { fontSize: 8, cellPadding: 2 },
-                headStyles: { fillColor: [0, 123, 255], textColor: 255 },
-                alternateRowStyles: { fillColor: [240, 240, 240] },
-                margin: { top: 35 }
-            });
-            
-            // Save the PDF
-            doc.save('reportes_' + new Date().toISOString().split('T')[0] + '.pdf');
+            try {
+                // Check if jsPDF is loaded
+                if (!window.jspdf || !window.jspdf.jsPDF) {
+                    console.error('jsPDF not loaded');
+                    alert('Error: La librería de PDF no está disponible. Por favor, recargue la página.');
+                    return;
+                }
+                
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('landscape');
+                
+                // Add title
+                doc.setFontSize(18);
+                doc.setTextColor(40, 40, 40);
+                doc.text(title, 14, 22);
+                
+                // Add date
+                doc.setFontSize(11);
+                doc.setTextColor(100);
+                doc.text('Generado: ' + new Date().toLocaleDateString('es-MX'), 14, 30);
+                
+                // Create table - handle both camelCase and PascalCase property names
+                const headers = [['Folio', 'Reportante', 'Descripción', 'Ubicación', 'Categoría', 'Estado', 'Prioridad', 'Fecha']];
+                const rows = data.map(function(item) {
+                    return [
+                        item.folio || item.Folio || '',
+                        item.reportante || item.Reportante || '',
+                        item.descripcion || item.Descripcion || '',
+                        item.ubicacion || item.Ubicacion || '',
+                        item.categoria || item.Categoria || '',
+                        item.estado || item.Estado || '',
+                        item.prioridad || item.Prioridad || '',
+                        item.fecha || item.Fecha || ''
+                    ];
+                });
+                
+                doc.autoTable({
+                    head: headers,
+                    body: rows,
+                    startY: 35,
+                    styles: { fontSize: 8, cellPadding: 2 },
+                    headStyles: { fillColor: [0, 123, 255], textColor: 255 },
+                    alternateRowStyles: { fillColor: [240, 240, 240] },
+                    margin: { top: 35 }
+                });
+                
+                // Save the PDF
+                doc.save('reportes_' + new Date().toISOString().split('T')[0] + '.pdf');
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('Error al generar el PDF: ' + error.message);
+            }
         };
     </script>
 </body>
