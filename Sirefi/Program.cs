@@ -13,46 +13,14 @@ builder.Services.AddDbContext<FormsDbContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
-
-// Add CORS
-builder.Services.AddCors(options =>
+// Configure CORS
+builder.Services.AddCors(options => 
 {
-    options.AddPolicy("AllowFrontend", policy =>
-    {
-        // Get allowed origins from configuration
-        var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
-        
-        if (builder.Environment.IsDevelopment())
-        {
-            // In development, use configured origins or defaults
-            // Cannot use AllowAnyOrigin() with AllowCredentials() (needed for cookies)
-            allowedOrigins ??= new[] 
-            { 
-                "http://localhost:5107", 
-                "https://localhost:7070",
-                "http://localhost:5173",
-                "http://localhost:3000"
-            };
-            
-            policy.WithOrigins(allowedOrigins)
-                  .AllowAnyMethod()
-                  .AllowAnyHeader()
-                  .AllowCredentials();
-        }
-        else
-        {
-            // In production, use specific allowed origins
-            if (allowedOrigins == null || allowedOrigins.Length == 0)
-            {
-                throw new InvalidOperationException("AllowedOrigins configuration is required in production");
-            }
-            
-            policy.WithOrigins(allowedOrigins)
-                  .AllowAnyMethod()
-                  .AllowAnyHeader()
-                  .AllowCredentials();
-        }
-    });
+    options.AddPolicy("AllowFrontend",
+        policy => policy.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials());
 });
 
 // Add Authentication
