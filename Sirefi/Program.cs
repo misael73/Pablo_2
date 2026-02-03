@@ -14,19 +14,13 @@ builder.Services.AddDbContext<FormsDbContext>(options =>
 // Configure CORS for Blazor WebAssembly
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowBlazorApp",
-        policy =>
-        {
-            policy.WithOrigins(
-                    "https://localhost:5001", 
-                    "http://localhost:5201", 
-                    "https://localhost:7186", 
-                    "http://localhost:7000",
-                    "http://localhost:5254",
-                    "https://localhost:7254")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:5201") // URL del cliente Blazor
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
 });
 
 // Configure Swagger/OpenAPI
