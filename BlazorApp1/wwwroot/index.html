@@ -32,6 +32,27 @@
         <span class="dismiss">🗙</span>
     </div>
     
+    <script>
+        // Setup Google Sign-In callback
+        window.setupGoogleSignIn = function (dotnetHelper) {
+            console.log('Setting up Google Sign-In callback');
+            window.loginComponentRef = dotnetHelper;
+            
+            window.handleCredentialResponse = function (response) {
+                console.log('Google Sign-In response received');
+                console.log('Token JWT recibido:', response.credential);
+                
+                if (window.loginComponentRef) {
+                    window.loginComponentRef.invokeMethodAsync('HandleGoogleLogin', response.credential)
+                        .then(() => console.log('Login method invoked successfully'))
+                        .catch(err => console.error('Error invoking login method:', err));
+                } else {
+                    console.error('Login component reference not found');
+                }
+            };
+        };
+    </script>
+    
     <script src="_framework/blazor.webassembly.js"></script>
 </body>
 

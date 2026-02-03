@@ -1,4 +1,5 @@
 @page "/"
+@attribute [Microsoft.AspNetCore.Authorization.AllowAnonymous]
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
 
@@ -7,24 +8,32 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated == true)
+        try
         {
-            var role = user.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-            
-            if (role == "administrador" || role == "tecnico")
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
             {
-                Navigation.NavigateTo("/dashboard");
+                var role = user.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+                
+                if (role == "administrador" || role == "tecnico")
+                {
+                    Navigation.NavigateTo("/dashboard");
+                }
+                else
+                {
+                    Navigation.NavigateTo("/my-reports");
+                }
             }
             else
             {
-                Navigation.NavigateTo("/my-reports");
+                Navigation.NavigateTo("/login");
             }
         }
-        else
+        catch
         {
+            // If auth check fails (e.g., backend not running), redirect to login
             Navigation.NavigateTo("/login");
         }
     }

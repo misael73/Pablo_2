@@ -1,5 +1,6 @@
 @page "/login"
 @attribute [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+@implements IDisposable
 @inject IJSRuntime JS
 @inject CustomAuthStateProvider AuthStateProvider
 @inject NavigationManager Navigation
@@ -36,60 +37,92 @@
             </div>
         }
 
+        @if (isLoading)
+        {
+            <div class="text-center mt-3">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Iniciando sesión...</span>
+                </div>
+                <p class="mt-2">Iniciando sesión...</p>
+            </div>
+        }
+
         <hr class="mt-4" />
     </div>
 </div>
 
 @code {
     private string? errorMessage;
+    private bool isLoading = false;
+    private DotNetObjectReference<Login>? objRef;
+
+    protected override void OnInitialized()
+    {
+        objRef = DotNetObjectReference.Create(this);
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await JS.InvokeVoidAsync("eval", @"
-                window.handleCredentialResponse = async function(response) {
-                    console.log('Token JWT recibido:', response.credential);
-                    DotNet.invokeMethodAsync('BlazorApp1', 'HandleGoogleLogin', response.credential);
-                };
-            ");
+            try
+            {
+                // Set up the JavaScript callback and pass component reference
+                await JS.InvokeVoidAsync("setupGoogleSignIn", objRef);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error setting up Google Sign-In: {ex.Message}");
+                errorMessage = "Error al configurar el inicio de sesión con Google. Por favor, recargue la página.";
+                StateHasChanged();
+            }
         }
     }
 
     [JSInvokable]
-    public static async Task HandleGoogleLogin(string idToken)
-    {
-        // This will be called from JavaScript
-        Console.WriteLine($"Received token: {idToken}");
-    }
-
-    private async Task LoginWithGoogle(string idToken)
+    public async Task HandleGoogleLogin(string idToken)
     {
         try
         {
+            isLoading = true;
+            errorMessage = null;
+            StateHasChanged();
+
+            Console.WriteLine($"Received token: {idToken}");
+            
             var result = await AuthStateProvider.Login(idToken);
             
             if (result.Success)
             {
                 // Redirect based on role
-                if (result.Usuario?.Rol == "administrador")
+                if (result.Usuario?.Rol == "administrador" || result.Usuario?.Rol == "tecnico")
                 {
-                    Navigation.NavigateTo("/dashboard");
+                    Navigation.NavigateTo("/dashboard", true);
                 }
                 else
                 {
-                    Navigation.NavigateTo("/my-reports");
+                    Navigation.NavigateTo("/my-reports", true);
                 }
             }
             else
             {
                 errorMessage = result.Error ?? "Error al iniciar sesión con Google";
+                isLoading = false;
+                StateHasChanged();
             }
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"Login error: {ex.Message}");
             errorMessage = $"Error: {ex.Message}";
+            isLoading = false;
+            StateHasChanged();
         }
+    }
+
+    public void Dispose()
+    {
+        objRef?.Dispose();
     }
 }
 
