@@ -1,0 +1,318 @@
+@page "/admin/categorias"
+@attribute [Authorize]
+@inject ApiService ApiService
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Gestionar Categorías - SIREFI</PageTitle>
+
+<div class="container-fluid mt-4">
+    <h2 class="fw-bold mb-4">
+        <i class="bi bi-tags"></i> Gestionar Categorías
+    </h2>
+
+    @if (!isAdmin)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> Solo los administradores pueden acceder a esta página.
+        </div>
+    }
+    else if (isLoading)
+    {
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="alert @(isError ? "alert-danger" : "alert-success") alert-dismissible fade show">
+                @message
+                <button type="button" class="btn-close" @onclick="() => message = null"></button>
+            </div>
+        }
+
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-tags"></i> Categorías de Reportes</h5>
+                <button class="btn btn-light btn-sm" @onclick="ShowAddCategoria">
+                    <i class="bi bi-plus"></i> Nueva Categoría
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Dashboard</th>
+                                <th>Icono</th>
+                                <th>Color</th>
+                                <th>Descripción</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var categoria in categorias)
+                            {
+                                <tr>
+                                    <td><strong>@categoria.Nombre</strong></td>
+                                    <td>
+                                        <span class="badge bg-info">@(categoria.TipoDashboard ?? "General")</span>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(categoria.Icono))
+                                        {
+                                            <i class="bi bi-@categoria.Icono"></i>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(categoria.Color))
+                                        {
+                                            <span class="badge" style="background-color: @categoria.Color">@categoria.Color</span>
+                                        }
+                                    </td>
+                                    <td>@TruncateText(categoria.Descripcion, 40)</td>
+                                    <td>
+                                        <span class="badge @(categoria.Activo ? "bg-success" : "bg-secondary")">
+                                            @(categoria.Activo ? "Activo" : "Inactivo")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-warning" @onclick="() => EditCategoria(categoria)" title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-danger" @onclick="() => DeleteCategoria(categoria.Id)" title="Eliminar">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            @if (!categorias.Any())
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted p-4">No hay categorías</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for Categoria -->
+        @if (showModal)
+        {
+            <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">@(editingCategoria?.Id > 0 ? "Editar" : "Nueva") Categoría</h5>
+                            <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" @bind="editingCategoria!.Nombre" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Dashboard</label>
+                                <select class="form-select" @bind="editingCategoria.TipoDashboard">
+                                    <option value="">General</option>
+                                    <option value="tics">TICs / Informática</option>
+                                    <option value="materiales">Recursos Materiales</option>
+                                    <option value="infraestructura">Infraestructura</option>
+                                </select>
+                                <small class="text-muted">Determina en qué dashboard aparecerán los reportes de esta categoría</small>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Icono (Bootstrap Icons)</label>
+                                    <input type="text" class="form-control" @bind="editingCategoria.Icono" 
+                                           placeholder="ej: laptop, tools, building" />
+                                    <small class="text-muted">
+                                        <a href="https://icons.getbootstrap.com/" target="_blank">Ver iconos</a>
+                                    </small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Color</label>
+                                    <input type="color" class="form-control form-control-color" @bind="editingCategoria.Color" />
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" rows="2" @bind="editingCategoria.Descripcion"></textarea>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" @bind="editingCategoria.Activo" />
+                                <label class="form-check-label">Activo</label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" @onclick="SaveCategoria">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<CategoriaDto> categorias = new();
+    private UsuarioDto? currentUser;
+    private bool isLoading = true;
+    private bool isAdmin = false;
+    private string? message;
+    private bool isError = false;
+
+    // Modal state
+    private bool showModal = false;
+    private CategoriaDto? editingCategoria;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthStateProvider.GetCurrentUserAsync();
+
+        if (currentUser == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        isAdmin = currentUser.Rol?.ToLower() == "administrador";
+
+        if (isAdmin)
+        {
+            await LoadDataAsync();
+        }
+        else
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+
+        try
+        {
+            var response = await ApiService.GetCategoriasAsync(null);
+            if (response?.Success == true && response.Data != null)
+            {
+                categorias = response.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"Error al cargar datos: {ex.Message}", true);
+        }
+
+        isLoading = false;
+    }
+
+    private void ShowAddCategoria()
+    {
+        editingCategoria = new CategoriaDto { Activo = true, Color = "#6c63ff" };
+        showModal = true;
+    }
+
+    private void EditCategoria(CategoriaDto categoria)
+    {
+        editingCategoria = new CategoriaDto
+        {
+            Id = categoria.Id,
+            Nombre = categoria.Nombre,
+            TipoDashboard = categoria.TipoDashboard,
+            Descripcion = categoria.Descripcion,
+            Icono = categoria.Icono,
+            Color = categoria.Color,
+            Activo = categoria.Activo
+        };
+        showModal = true;
+    }
+
+    private async Task SaveCategoria()
+    {
+        if (editingCategoria == null || string.IsNullOrWhiteSpace(editingCategoria.Nombre))
+        {
+            ShowMessage("El nombre es requerido", true);
+            return;
+        }
+
+        try
+        {
+            ApiResponse<CategoriaDto>? response;
+            if (editingCategoria.Id > 0)
+            {
+                response = await ApiService.UpdateCategoriaAsync(editingCategoria.Id, editingCategoria);
+            }
+            else
+            {
+                response = await ApiService.CreateCategoriaAsync(editingCategoria);
+            }
+
+            if (response?.Success == true)
+            {
+                ShowMessage("Categoría guardada exitosamente", false);
+                CloseModal();
+                await LoadDataAsync();
+            }
+            else
+            {
+                ShowMessage(response?.Message ?? "Error al guardar", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"Error: {ex.Message}", true);
+        }
+    }
+
+    private async Task DeleteCategoria(int id)
+    {
+        try
+        {
+            var response = await ApiService.DeleteCategoriaAsync(id);
+            if (response?.Success == true)
+            {
+                ShowMessage("Categoría eliminada", false);
+                await LoadDataAsync();
+            }
+            else
+            {
+                ShowMessage(response?.Message ?? "Error al eliminar", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"Error: {ex.Message}", true);
+        }
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        editingCategoria = null;
+    }
+
+    private void ShowMessage(string msg, bool error)
+    {
+        message = msg;
+        isError = error;
+    }
+
+    private string TruncateText(string? text, int maxLength)
+    {
+        if (string.IsNullOrEmpty(text)) return "";
+        return text.Length <= maxLength ? text : text.Substring(0, maxLength) + "...";
+    }
+}

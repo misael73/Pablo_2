@@ -1,0 +1,250 @@
+@page "/nuevo-reporte"
+@attribute [Authorize]
+@inject ApiService ApiService
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Nuevo Reporte - SIREFI</PageTitle>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-plus-circle"></i> Nuevo Reporte
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger">@errorMessage</div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="alert alert-success">@successMessage</div>
+                    }
+
+                    <EditForm Model="@newReporte" OnValidSubmit="HandleSubmit">
+                        <DataAnnotationsValidator />
+                        
+                        <!-- Edificio -->
+                        <div class="mb-3">
+                            <label class="form-label">Edificio *</label>
+                            <select class="form-select" @bind="newReporte.IdEdificio" @bind:after="OnEdificioChanged">
+                                <option value="0">Seleccione un edificio...</option>
+                                @foreach (var edificio in edificios)
+                                {
+                                    <option value="@edificio.Id">@edificio.Nombre</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Salón -->
+                        <div class="mb-3">
+                            <label class="form-label">Salón / Área</label>
+                            <select class="form-select" @bind="newReporte.IdSalon" disabled="@(salones.Count == 0)">
+                                <option value="">Seleccione un salón...</option>
+                                @foreach (var salon in salones)
+                                {
+                                    <option value="@salon.Id">@salon.Nombre</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Ubicación Adicional -->
+                        <div class="mb-3">
+                            <label class="form-label">Ubicación Adicional</label>
+                            <input type="text" class="form-control" @bind="newReporte.UbicacionAdicional" 
+                                   placeholder="Ej: Cerca de la ventana, segundo piso..." />
+                        </div>
+
+                        <!-- Categoría -->
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Reporte *</label>
+                            <select class="form-select" @bind="newReporte.IdCategoria">
+                                <option value="0">Seleccione una categoría...</option>
+                                @foreach (var categoria in categorias)
+                                {
+                                    <option value="@categoria.Id">@categoria.Nombre</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Subcategoría -->
+                        <div class="mb-3">
+                            <label class="form-label">Subcategoría</label>
+                            <input type="text" class="form-control" @bind="newReporte.Subcategoria" 
+                                   placeholder="Especifique el problema..." />
+                        </div>
+
+                        <!-- Título -->
+                        <div class="mb-3">
+                            <label class="form-label">Título del Reporte</label>
+                            <input type="text" class="form-control" @bind="newReporte.Titulo" 
+                                   placeholder="Breve descripción del problema..." />
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="mb-3">
+                            <label class="form-label">Descripción Detallada *</label>
+                            <textarea class="form-control" rows="5" @bind="newReporte.Descripcion" 
+                                      placeholder="Describa el problema con el mayor detalle posible..."></textarea>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            <a href="/mis-reportes" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                @if (isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                                    <span> Enviando...</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-send"></i>
+                                    <span> Enviar Reporte</span>
+                                }
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private CreateReporteDto newReporte = new();
+    private List<EdificioDto> edificios = new();
+    private List<SalonDto> salones = new();
+    private List<CategoriaDto> categorias = new();
+    private UsuarioDto? currentUser;
+    private bool isSubmitting = false;
+    private string? errorMessage;
+    private string? successMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthStateProvider.GetCurrentUserAsync();
+
+        if (currentUser == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        newReporte.IdReportante = currentUser.Id;
+
+        // Load dropdowns
+        await LoadEdificiosAsync();
+        await LoadCategoriasAsync();
+    }
+
+    private async Task LoadEdificiosAsync()
+    {
+        try
+        {
+            var response = await ApiService.GetEdificiosAsync(true);
+            if (response?.Success == true && response.Data != null)
+            {
+                edificios = response.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading edificios: {ex.Message}");
+        }
+    }
+
+    private async Task LoadCategoriasAsync()
+    {
+        try
+        {
+            var response = await ApiService.GetCategoriasAsync(true);
+            if (response?.Success == true && response.Data != null)
+            {
+                categorias = response.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading categorias: {ex.Message}");
+        }
+    }
+
+    private async Task OnEdificioChanged()
+    {
+        newReporte.IdSalon = null;
+        salones.Clear();
+
+        if (newReporte.IdEdificio > 0)
+        {
+            try
+            {
+                var response = await ApiService.GetSalonesAsync(newReporte.IdEdificio);
+                if (response?.Success == true && response.Data != null)
+                {
+                    salones = response.Data;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading salones: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        errorMessage = null;
+        successMessage = null;
+
+        // Validation
+        if (newReporte.IdEdificio <= 0)
+        {
+            errorMessage = "Debe seleccionar un edificio";
+            return;
+        }
+
+        if (newReporte.IdCategoria <= 0)
+        {
+            errorMessage = "Debe seleccionar un tipo de reporte";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(newReporte.Descripcion))
+        {
+            errorMessage = "Debe ingresar una descripción";
+            return;
+        }
+
+        isSubmitting = true;
+
+        try
+        {
+            var response = await ApiService.CreateReporteAsync(newReporte);
+
+            if (response?.Success == true)
+            {
+                // Navigate immediately after success
+                NavigationManager.NavigateTo("/mis-reportes");
+            }
+            else
+            {
+                errorMessage = response?.Message ?? "Error al crear el reporte";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error de conexión: {ex.Message}";
+        }
+
+        isSubmitting = false;
+    }
+}

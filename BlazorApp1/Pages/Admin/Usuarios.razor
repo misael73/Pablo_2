@@ -1,0 +1,333 @@
+@page "/admin/usuarios"
+@attribute [Authorize]
+@inject ApiService ApiService
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Gestionar Usuarios - SIREFI</PageTitle>
+
+<div class="container-fluid mt-4">
+    <h2 class="fw-bold mb-4">
+        <i class="bi bi-people"></i> Gestionar Usuarios
+    </h2>
+
+    @if (!isAdmin)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> Solo los administradores pueden acceder a esta página.
+        </div>
+    }
+    else if (isLoading)
+    {
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="alert @(isError ? "alert-danger" : "alert-success") alert-dismissible fade show">
+                @message
+                <button type="button" class="btn-close" @onclick="() => message = null"></button>
+            </div>
+        }
+
+        <!-- Stats -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white text-center p-3">
+                    <h6>Total Usuarios</h6>
+                    <h3>@usuarios.Count</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white text-center p-3">
+                    <h6>Administradores</h6>
+                    <h3>@usuarios.Count(u => u.Rol?.ToLower() == "administrador")</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark text-center p-3">
+                    <h6>Técnicos</h6>
+                    <h3>@usuarios.Count(u => u.Rol?.ToLower() == "tecnico")</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white text-center p-3">
+                    <h6>Reportantes</h6>
+                    <h3>@usuarios.Count(u => u.Rol?.ToLower() == "reportante")</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-people"></i> Usuarios del Sistema</h5>
+            </div>
+            <div class="card-body">
+                <!-- Filter -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" placeholder="Buscar por nombre o correo..." 
+                               @bind="searchTerm" @bind:event="oninput" />
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" @bind="filterRol">
+                            <option value="">Todos los roles</option>
+                            <option value="administrador">Administrador</option>
+                            <option value="tecnico">Técnico</option>
+                            <option value="reportante">Reportante</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Foto</th>
+                                <th>Nombre</th>
+                                <th>Correo</th>
+                                <th>Rol</th>
+                                <th>Departamento</th>
+                                <th>Último Acceso</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var usuario in FilteredUsuarios)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(usuario.Foto))
+                                        {
+                                            <img src="@usuario.Foto" class="rounded-circle" width="40" height="40" />
+                                        }
+                                        else
+                                        {
+                                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" 
+                                                 style="width: 40px; height: 40px;">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td><strong>@usuario.Nombre</strong></td>
+                                    <td>@usuario.Correo</td>
+                                    <td>
+                                        <span class="badge @GetRolClass(usuario.Rol)">@usuario.Rol</span>
+                                    </td>
+                                    <td>@(usuario.Departamento ?? "-")</td>
+                                    <td>@(usuario.UltimoAcceso?.ToString("dd/MM/yyyy HH:mm") ?? "Nunca")</td>
+                                    <td>
+                                        <span class="badge @(usuario.Activo ? "bg-success" : "bg-secondary")">
+                                            @(usuario.Activo ? "Activo" : "Inactivo")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-warning btn-sm" @onclick="() => EditUsuario(usuario)" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                            @if (!FilteredUsuarios.Any())
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted p-4">No se encontraron usuarios</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for editing User -->
+        @if (showModal)
+        {
+            <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Editar Usuario</h5>
+                            <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="text-center mb-3">
+                                @if (!string.IsNullOrEmpty(editingUsuario?.Foto))
+                                {
+                                    <img src="@editingUsuario.Foto" class="rounded-circle" width="80" height="80" />
+                                }
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nombre</label>
+                                <input type="text" class="form-control" value="@editingUsuario?.Nombre" readonly />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Correo</label>
+                                <input type="text" class="form-control" value="@editingUsuario?.Correo" readonly />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Rol *</label>
+                                <select class="form-select" @bind="editingUsuario!.Rol">
+                                    <option value="reportante">Reportante</option>
+                                    <option value="tecnico">Técnico</option>
+                                    <option value="administrador">Administrador</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Departamento</label>
+                                <input type="text" class="form-control" @bind="editingUsuario.Departamento" 
+                                       placeholder="Ej: Sistemas, Mantenimiento..." />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Teléfono</label>
+                                <input type="text" class="form-control" @bind="editingUsuario.Telefono" />
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" @bind="editingUsuario.Activo" />
+                                <label class="form-check-label">Usuario Activo</label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" @onclick="SaveUsuario">Guardar Cambios</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<UsuarioDto> usuarios = new();
+    private UsuarioDto? currentUser;
+    private bool isLoading = true;
+    private bool isAdmin = false;
+    private string? message;
+    private bool isError = false;
+    private string searchTerm = "";
+    private string filterRol = "";
+
+    // Modal state
+    private bool showModal = false;
+    private UsuarioDto? editingUsuario;
+
+    private IEnumerable<UsuarioDto> FilteredUsuarios => usuarios
+        .Where(u => string.IsNullOrEmpty(searchTerm) || 
+                    u.Nombre.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    u.Correo.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+        .Where(u => string.IsNullOrEmpty(filterRol) || u.Rol?.ToLower() == filterRol)
+        .OrderBy(u => u.Nombre);
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthStateProvider.GetCurrentUserAsync();
+
+        if (currentUser == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        isAdmin = currentUser.Rol?.ToLower() == "administrador";
+
+        if (isAdmin)
+        {
+            await LoadDataAsync();
+        }
+        else
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+
+        try
+        {
+            var response = await ApiService.GetUsuariosAsync();
+            if (response?.Success == true && response.Data != null)
+            {
+                usuarios = response.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"Error al cargar datos: {ex.Message}", true);
+        }
+
+        isLoading = false;
+    }
+
+    private void EditUsuario(UsuarioDto usuario)
+    {
+        editingUsuario = new UsuarioDto
+        {
+            Id = usuario.Id,
+            Nombre = usuario.Nombre,
+            Correo = usuario.Correo,
+            Rol = usuario.Rol,
+            Telefono = usuario.Telefono,
+            Foto = usuario.Foto,
+            Departamento = usuario.Departamento,
+            Activo = usuario.Activo
+        };
+        showModal = true;
+    }
+
+    private async Task SaveUsuario()
+    {
+        if (editingUsuario == null) return;
+
+        try
+        {
+            var response = await ApiService.UpdateUsuarioAsync(editingUsuario.Id, editingUsuario);
+
+            if (response?.Success == true)
+            {
+                ShowMessage("Usuario actualizado exitosamente", false);
+                CloseModal();
+                await LoadDataAsync();
+            }
+            else
+            {
+                ShowMessage(response?.Message ?? "Error al guardar", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"Error: {ex.Message}", true);
+        }
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        editingUsuario = null;
+    }
+
+    private void ShowMessage(string msg, bool error)
+    {
+        message = msg;
+        isError = error;
+    }
+
+    private string GetRolClass(string? rol)
+    {
+        return rol?.ToLower() switch
+        {
+            "administrador" => "bg-danger",
+            "tecnico" => "bg-warning text-dark",
+            "reportante" => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+}

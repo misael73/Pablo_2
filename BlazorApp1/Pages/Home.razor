@@ -1,7 +1,72 @@
 ﻿@page "/"
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
 
-<PageTitle>Home</PageTitle>
+<PageTitle>SIREFI - Sistema de Reporte de Fallas e Incidencias</PageTitle>
 
-<h1>Hello, world!</h1>
+@if (isLoading)
+{
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+}
+else if (isAuthenticated)
+{
+    <div class="container mt-5 text-center">
+        <h1>Bienvenido a SIREFI</h1>
+        <p class="lead">Sistema de Reporte de Fallas e Incidencias</p>
+        <p class="text-muted">Usuario: @userName (@userRole)</p>
+        
+        @if (isAdminOrTecnico)
+        {
+            <a href="/dashboard" class="btn btn-primary btn-lg mt-3 me-2">
+                <i class="bi bi-speedometer2"></i> Ver Dashboard
+            </a>
+        }
+        else
+        {
+            <a href="/mis-reportes" class="btn btn-primary btn-lg mt-3 me-2">
+                <i class="bi bi-list-check"></i> Ver Mis Reportes
+            </a>
+        }
+        <a href="/nuevo-reporte" class="btn btn-success btn-lg mt-3">
+            <i class="bi bi-plus-circle"></i> Nuevo Reporte
+        </a>
+    </div>
+}
+else
+{
+    <div class="container mt-5 text-center">
+        <h1>SIREFI</h1>
+        <p class="lead">Sistema de Reporte de Fallas e Incidencias</p>
+        <p>Inicia sesión para continuar</p>
+        <a href="/login" class="btn btn-primary btn-lg mt-3">
+            <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+        </a>
+    </div>
+}
 
-Welcome to your new app.
+@code {
+    private bool isLoading = true;
+    private bool isAuthenticated = false;
+    private string userName = "";
+    private string userRole = "";
+    private bool isAdminOrTecnico = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await AuthStateProvider.GetCurrentUserAsync();
+        isAuthenticated = user != null;
+        
+        if (user != null)
+        {
+            userName = user.Nombre;
+            userRole = user.Rol ?? "reportante";
+            isAdminOrTecnico = userRole.ToLower() == "administrador" || userRole.ToLower() == "tecnico";
+        }
+        
+        isLoading = false;
+    }
+}

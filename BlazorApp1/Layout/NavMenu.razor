@@ -1,6 +1,8 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject CustomAuthStateProvider AuthStateProvider
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">BlazorApp1</a>
+        <a class="navbar-brand" href="">SIREFI</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -9,32 +11,86 @@
 
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="nav flex-column">
+        @if (isAdminOrTecnico)
+        {
+            <!-- Admin and Technician see all reports dashboard -->
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="dashboard" Match="NavLinkMatch.All">
+                    <span class="bi bi-speedometer2" aria-hidden="true"></span> Dashboard
+                </NavLink>
+            </div>
+            
+            <!-- Dashboards submenu -->
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="dashboard-tics">
+                    <span class="bi bi-pc-display" aria-hidden="true"></span> TICs
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="dashboard-materiales">
+                    <span class="bi bi-tools" aria-hidden="true"></span> Materiales
+                </NavLink>
+            </div>
+        }
+        else
+        {
+            <!-- Reportante only sees their reports -->
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="mis-reportes" Match="NavLinkMatch.All">
+                    <span class="bi bi-list-check" aria-hidden="true"></span> Mis Reportes
+                </NavLink>
+            </div>
+        }
+        
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            <NavLink class="nav-link" href="nuevo-reporte">
+                <span class="bi bi-plus-circle" aria-hidden="true"></span> Nuevo Reporte
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
+        
+        @if (isAdmin)
+        {
+            <!-- Admin-only menu items -->
+            <hr class="mx-3 my-2" style="border-color: rgba(255,255,255,0.2);" />
+            <div class="nav-item px-3 text-muted small">
+                <span style="color: rgba(255,255,255,0.5);">ADMINISTRACIÓN</span>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin/infraestructura">
+                    <span class="bi bi-building" aria-hidden="true"></span> Infraestructura
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin/categorias">
+                    <span class="bi bi-tags" aria-hidden="true"></span> Categorías
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin/usuarios">
+                    <span class="bi bi-people" aria-hidden="true"></span> Usuarios
+                </NavLink>
+            </div>
+        }
     </nav>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
+    private string userRole = "";
+    private bool isAdmin => userRole?.ToLower() == "administrador";
+    private bool isTecnico => userRole?.ToLower() == "tecnico";
+    private bool isAdminOrTecnico => isAdmin || isTecnico;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await AuthStateProvider.GetCurrentUserAsync();
+        userRole = user?.Rol ?? "reportante";
+    }
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
     }
-
 }
