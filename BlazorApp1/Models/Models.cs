@@ -74,6 +74,15 @@ public class CreateReporteDto
     public int IdReportante { get; set; }
 }
 
+public class UpdateReporteDto
+{
+    public int IdEstado { get; set; }
+    public int IdPrioridad { get; set; }
+    public int? IdAsignadoA { get; set; }
+    public string? Comentario { get; set; }
+    public int IdUsuarioActualizacion { get; set; }
+}
+
 public class CategoriaDto
 {
     public int Id { get; set; }
@@ -137,4 +146,13 @@ public class CreateComentarioDto
 public class GoogleLoginDto
 {
     public string IdToken { get; set; } = "";
+}
+
+public class EstadoPrioridadDto
+{
+    public int Id { get; set; }
+    public string Nombre { get; set; } = "";
+    public string? Descripcion { get; set; }
+    public string? Color { get; set; }
+    public bool Activo { get; set; }
 }

@@ -252,6 +252,68 @@ public class ReportesController : ControllerBase
     }
 
     /// <summary>
+    /// Get reports by dashboard type (tics, materiales, infraestructura)
+    /// </summary>
+    [HttpGet("por-dashboard/{tipoDashboard}")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<ReporteDto>>>> GetReportesByDashboard(string tipoDashboard)
+    {
+        try
+        {
+            // Get category IDs that match the dashboard type
+            var dashboardTypes = tipoDashboard.ToLower() == "materiales" 
+                ? new[] { "materiales", "infraestructura" }
+                : new[] { tipoDashboard.ToLower() };
+
+            var categoriaIds = await _context.Categorias
+                .Where(c => c.TipoDashboard != null && dashboardTypes.Contains(c.TipoDashboard.ToLower()))
+                .Select(c => c.Id)
+                .ToListAsync();
+
+            var reportes = await _context.Reportes
+                .Include(r => r.IdEdificioNavigation)
+                .Include(r => r.IdSalonNavigation)
+                .Include(r => r.IdCategoriaNavigation)
+                .Include(r => r.IdPrioridadNavigation)
+                .Include(r => r.IdEstadoNavigation)
+                .Include(r => r.IdReportanteNavigation)
+                .Where(r => categoriaIds.Contains(r.IdCategoria) && !r.Eliminado)
+                .OrderByDescending(r => r.FechaReporte)
+                .Select(r => new ReporteDto
+                {
+                    Id = r.Id,
+                    Folio = r.Folio,
+                    IdEdificio = r.IdEdificio,
+                    EdificioNombre = r.IdEdificioNavigation != null ? r.IdEdificioNavigation.Nombre : null,
+                    IdSalon = r.IdSalon,
+                    SalonNombre = r.IdSalonNavigation != null ? r.IdSalonNavigation.Nombre : null,
+                    IdCategoria = r.IdCategoria,
+                    CategoriaNombre = r.IdCategoriaNavigation.Nombre,
+                    Titulo = r.Titulo,
+                    Descripcion = r.Descripcion,
+                    IdPrioridad = r.IdPrioridad,
+                    PrioridadNombre = r.IdPrioridadNavigation.Nombre,
+                    PrioridadColor = r.IdPrioridadNavigation.Color,
+                    IdEstado = r.IdEstado,
+                    EstadoNombre = r.IdEstadoNavigation.Nombre,
+                    EstadoColor = r.IdEstadoNavigation.Color,
+                    IdReportante = r.IdReportante,
+                    ReportanteNombre = r.IdReportanteNavigation.Nombre,
+                    FechaReporte = r.FechaReporte,
+                    FechaAsignacion = r.FechaAsignacion,
+                    FechaFinalizacion = r.FechaFinalizacion
+                })
+                .ToListAsync();
+
+            return Ok(ApiResponse<IEnumerable<ReporteDto>>.Ok(reportes, "Reportes obtenidos correctamente"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener reportes por dashboard {TipoDashboard}", tipoDashboard);
+            return StatusCode(500, ApiResponse<IEnumerable<ReporteDto>>.Fail("Error interno del servidor"));
+        }
+    }
+
+    /// <summary>
     /// Create a new report
     /// </summary>
     [HttpPost]

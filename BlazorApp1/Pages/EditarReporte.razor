@@ -1,0 +1,323 @@
+@page "/editar-reporte/{Id:int}"
+@attribute [Authorize]
+@inject ApiService ApiService
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Editar Reporte - SIREFI</PageTitle>
+
+<div class="container mt-4">
+    @if (!isAdmin)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> Solo los administradores pueden editar reportes.
+        </div>
+        <a href="/dashboard" class="btn btn-primary">Volver al Dashboard</a>
+    }
+    else if (isLoading)
+    {
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    }
+    else if (reporte == null)
+    {
+        <div class="alert alert-warning">Reporte no encontrado</div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0">
+                            <i class="bi bi-pencil"></i> Editar Reporte @reporte.Folio
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        @if (!string.IsNullOrEmpty(successMessage))
+                        {
+                            <div class="alert alert-success">@successMessage</div>
+                        }
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger">@errorMessage</div>
+                        }
+
+                        <EditForm Model="@editModel" OnValidSubmit="HandleSubmit">
+                            <!-- Report Info (Read Only) -->
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Folio</label>
+                                <input type="text" class="form-control" value="@reporte.Folio" readonly />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Reportante</label>
+                                <input type="text" class="form-control" value="@reporte.ReportanteNombre" readonly />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Descripción</label>
+                                <textarea class="form-control" rows="3" readonly>@reporte.Descripcion</textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Ubicación</label>
+                                    <input type="text" class="form-control" value="@($"{reporte.EdificioNombre} - {reporte.SalonNombre}")" readonly />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Categoría</label>
+                                    <input type="text" class="form-control" value="@reporte.CategoriaNombre" readonly />
+                                </div>
+                            </div>
+
+                            <hr />
+
+                            <!-- Editable Fields -->
+                            <h5 class="mb-3">Actualizar Estado</h5>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Estado *</label>
+                                    <select class="form-select" @bind="editModel.IdEstado">
+                                        @foreach (var estado in estados)
+                                        {
+                                            <option value="@estado.Id">@estado.Nombre</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Prioridad *</label>
+                                    <select class="form-select" @bind="editModel.IdPrioridad">
+                                        @foreach (var prioridad in prioridades)
+                                        {
+                                            <option value="@prioridad.Id">@prioridad.Nombre</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Asignar a Técnico</label>
+                                <select class="form-select" @bind="editModel.IdAsignadoA">
+                                    <option value="">Sin asignar</option>
+                                    @foreach (var tecnico in tecnicos)
+                                    {
+                                        <option value="@tecnico.Id">@tecnico.Nombre (@tecnico.Correo)</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Agregar Comentario/Acción</label>
+                                <textarea class="form-control" rows="3" @bind="editModel.Comentario" 
+                                          placeholder="Describa la acción realizada..."></textarea>
+                            </div>
+
+                            <hr />
+
+                            <div class="d-flex justify-content-between">
+                                <a href="/dashboard" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left"></i> Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-warning" disabled="@isSaving">
+                                    @if (isSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm"></span>
+                                        <span> Guardando...</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-check-lg"></i>
+                                        <span> Guardar Cambios</span>
+                                    }
+                                </button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar with current info -->
+            <div class="col-md-4">
+                <div class="card shadow mb-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">Estado Actual</h6>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Estado:</strong> 
+                            <span class="badge @GetStatusClass(reporte.EstadoNombre)">@reporte.EstadoNombre</span>
+                        </p>
+                        <p><strong>Prioridad:</strong> 
+                            <span class="badge" style="background-color: @(reporte.PrioridadColor ?? "#6c757d")">@reporte.PrioridadNombre</span>
+                        </p>
+                        <p><strong>Técnico:</strong> @(reporte.TecnicoNombre ?? "Sin asignar")</p>
+                        <p><strong>Fecha Reporte:</strong> @reporte.FechaReporte.ToString("dd/MM/yyyy HH:mm")</p>
+                        @if (reporte.FechaAsignacion.HasValue)
+                        {
+                            <p><strong>Fecha Asignación:</strong> @reporte.FechaAsignacion.Value.ToString("dd/MM/yyyy HH:mm")</p>
+                        }
+                    </div>
+                </div>
+
+                <a href="/reporte/@Id" class="btn btn-info w-100">
+                    <i class="bi bi-eye"></i> Ver Detalle Completo
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .status-resuelto { background-color: #28a745; }
+    .status-enproceso { background-color: #ffc107; color: #000; }
+    .status-recibido { background-color: #dc3545; }
+    .status-default { background-color: #6c757d; }
+</style>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private ReporteDto? reporte;
+    private EditReporteModel editModel = new();
+    private List<EstadoPrioridadDto> estados = new();
+    private List<EstadoPrioridadDto> prioridades = new();
+    private List<UsuarioDto> tecnicos = new();
+    private UsuarioDto? currentUser;
+    private bool isLoading = true;
+    private bool isAdmin = false;
+    private bool isSaving = false;
+    private string? successMessage;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthStateProvider.GetCurrentUserAsync();
+
+        if (currentUser == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        isAdmin = currentUser.Rol?.ToLower() == "administrador";
+
+        if (isAdmin)
+        {
+            await LoadDataAsync();
+        }
+        else
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+
+        try
+        {
+            // Load report
+            var reporteResponse = await ApiService.GetReporteAsync(Id);
+            if (reporteResponse?.Success == true && reporteResponse.Data != null)
+            {
+                reporte = reporteResponse.Data;
+                editModel.IdEstado = reporte.IdEstado;
+                editModel.IdPrioridad = reporte.IdPrioridad;
+                editModel.IdAsignadoA = reporte.IdAsignadoA;
+            }
+
+            // Load estados
+            var estadosResponse = await ApiService.GetEstadosAsync();
+            if (estadosResponse?.Success == true && estadosResponse.Data != null)
+            {
+                estados = estadosResponse.Data;
+            }
+
+            // Load prioridades
+            var prioridadesResponse = await ApiService.GetPrioridadesAsync();
+            if (prioridadesResponse?.Success == true && prioridadesResponse.Data != null)
+            {
+                prioridades = prioridadesResponse.Data;
+            }
+
+            // Load tecnicos (users with rol tecnico or administrador)
+            var tecnicosResponse = await ApiService.GetTecnicosAsync();
+            if (tecnicosResponse?.Success == true && tecnicosResponse.Data != null)
+            {
+                tecnicos = tecnicosResponse.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+            errorMessage = "Error al cargar los datos";
+        }
+
+        isLoading = false;
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (currentUser == null || reporte == null) return;
+
+        errorMessage = null;
+        successMessage = null;
+        isSaving = true;
+
+        try
+        {
+            var updateDto = new UpdateReporteDto
+            {
+                IdEstado = editModel.IdEstado,
+                IdPrioridad = editModel.IdPrioridad,
+                IdAsignadoA = editModel.IdAsignadoA,
+                Comentario = editModel.Comentario,
+                IdUsuarioActualizacion = currentUser.Id
+            };
+
+            var response = await ApiService.UpdateReporteAsync(Id, updateDto);
+
+            if (response?.Success == true)
+            {
+                successMessage = "Reporte actualizado exitosamente";
+                editModel.Comentario = ""; // Clear comment
+                await LoadDataAsync(); // Reload to show updated data
+            }
+            else
+            {
+                errorMessage = response?.Message ?? "Error al actualizar el reporte";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+
+        isSaving = false;
+    }
+
+    private string GetStatusClass(string? estado)
+    {
+        return estado?.ToLower() switch
+        {
+            "resuelto" or "solucionado" => "status-resuelto",
+            "en proceso" => "status-enproceso",
+            "recibido" => "status-recibido",
+            _ => "status-default"
+        };
+    }
+
+    public class EditReporteModel
+    {
+        public int IdEstado { get; set; }
+        public int IdPrioridad { get; set; }
+        public int? IdAsignadoA { get; set; }
+        public string? Comentario { get; set; }
+    }
+}

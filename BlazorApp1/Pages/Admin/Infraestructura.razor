@@ -1,0 +1,511 @@
+@page "/admin/infraestructura"
+@attribute [Authorize]
+@inject ApiService ApiService
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Gestionar Infraestructura - SIREFI</PageTitle>
+
+<div class="container-fluid mt-4">
+    <h2 class="fw-bold mb-4">
+        <i class="bi bi-building"></i> Gestionar Infraestructura
+    </h2>
+
+    @if (!isAdmin)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> Solo los administradores pueden acceder a esta página.
+        </div>
+    }
+    else if (isLoading)
+    {
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="alert @(isError ? "alert-danger" : "alert-success") alert-dismissible fade show">
+                @message
+                <button type="button" class="btn-close" @onclick="() => message = null"></button>
+            </div>
+        }
+
+        <div class="row">
+            <!-- Edificios Section -->
+            <div class="col-md-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-building"></i> Edificios</h5>
+                        <button class="btn btn-light btn-sm" @onclick="ShowAddEdificio">
+                            <i class="bi bi-plus"></i> Nuevo
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nombre</th>
+                                        <th>Salones</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var edificio in edificios)
+                                    {
+                                        <tr class="@(selectedEdificioId == edificio.Id ? "table-active" : "")">
+                                            <td>@edificio.Codigo</td>
+                                            <td>@edificio.Nombre</td>
+                                            <td>@edificio.SalonesCount</td>
+                                            <td>
+                                                <span class="badge @(edificio.Activo ? "bg-success" : "bg-secondary")">
+                                                    @(edificio.Activo ? "Activo" : "Inactivo")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-info" @onclick="() => SelectEdificio(edificio.Id)" title="Ver salones">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-warning" @onclick="() => EditEdificio(edificio)" title="Editar">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="btn btn-danger" @onclick="() => DeleteEdificio(edificio.Id)" title="Eliminar">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Salones Section -->
+            <div class="col-md-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-door-open"></i> Salones
+                            @if (selectedEdificioId.HasValue)
+                            {
+                                <small>(@(edificios.FirstOrDefault(e => e.Id == selectedEdificioId)?.Nombre))</small>
+                            }
+                        </h5>
+                        @if (selectedEdificioId.HasValue)
+                        {
+                            <button class="btn btn-light btn-sm" @onclick="ShowAddSalon">
+                                <i class="bi bi-plus"></i> Nuevo
+                            </button>
+                        }
+                    </div>
+                    <div class="card-body">
+                        @if (!selectedEdificioId.HasValue)
+                        {
+                            <p class="text-muted text-center">Selecciona un edificio para ver sus salones</p>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Nombre</th>
+                                            <th>Tipo</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var salon in salones.Where(s => s.IdEdificio == selectedEdificioId))
+                                        {
+                                            <tr>
+                                                <td>@salon.Codigo</td>
+                                                <td>@salon.Nombre</td>
+                                                <td>@salon.TipoEspacio</td>
+                                                <td>
+                                                    <span class="badge @(salon.Activo ? "bg-success" : "bg-secondary")">
+                                                        @(salon.Activo ? "Activo" : "Inactivo")
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <button class="btn btn-warning" @onclick="() => EditSalon(salon)" title="Editar">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </button>
+                                                        <button class="btn btn-danger" @onclick="() => DeleteSalon(salon.Id)" title="Eliminar">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                        @if (!salones.Any(s => s.IdEdificio == selectedEdificioId))
+                                        {
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted">No hay salones</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for Edificio -->
+        @if (showEdificioModal)
+        {
+            <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">@(editingEdificio?.Id > 0 ? "Editar" : "Nuevo") Edificio</h5>
+                            <button type="button" class="btn-close" @onclick="CloseModals"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Código</label>
+                                <input type="text" class="form-control" @bind="editingEdificio!.Codigo" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" @bind="editingEdificio.Nombre" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Ubicación</label>
+                                <input type="text" class="form-control" @bind="editingEdificio.Ubicacion" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Pisos</label>
+                                <input type="number" class="form-control" @bind="editingEdificio.Pisos" />
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" @bind="editingEdificio.Activo" />
+                                <label class="form-check-label">Activo</label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="CloseModals">Cancelar</button>
+                            <button type="button" class="btn btn-primary" @onclick="SaveEdificio">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Modal for Salon -->
+        @if (showSalonModal)
+        {
+            <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">@(editingSalon?.Id > 0 ? "Editar" : "Nuevo") Salón</h5>
+                            <button type="button" class="btn-close" @onclick="CloseModals"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Código</label>
+                                <input type="text" class="form-control" @bind="editingSalon!.Codigo" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" @bind="editingSalon.Nombre" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Espacio</label>
+                                <select class="form-select" @bind="editingSalon.TipoEspacio">
+                                    <option value="">Seleccione...</option>
+                                    <option value="Aula">Aula</option>
+                                    <option value="Laboratorio">Laboratorio</option>
+                                    <option value="Oficina">Oficina</option>
+                                    <option value="Auditorio">Auditorio</option>
+                                    <option value="Biblioteca">Biblioteca</option>
+                                    <option value="Baño">Baño</option>
+                                    <option value="Área común">Área común</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Piso</label>
+                                    <input type="number" class="form-control" @bind="editingSalon.Piso" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Capacidad</label>
+                                    <input type="number" class="form-control" @bind="editingSalon.Capacidad" />
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" @bind="editingSalon.Activo" />
+                                <label class="form-check-label">Activo</label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="CloseModals">Cancelar</button>
+                            <button type="button" class="btn btn-primary" @onclick="SaveSalon">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<EdificioDto> edificios = new();
+    private List<SalonDto> salones = new();
+    private UsuarioDto? currentUser;
+    private bool isLoading = true;
+    private bool isAdmin = false;
+    private int? selectedEdificioId;
+    private string? message;
+    private bool isError = false;
+
+    // Modal states
+    private bool showEdificioModal = false;
+    private bool showSalonModal = false;
+    private EdificioDto? editingEdificio;
+    private SalonDto? editingSalon;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthStateProvider.GetCurrentUserAsync();
+
+        if (currentUser == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        isAdmin = currentUser.Rol?.ToLower() == "administrador";
+
+        if (isAdmin)
+        {
+            await LoadDataAsync();
+        }
+        else
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+
+        try
+        {
+            var edificiosResponse = await ApiService.GetEdificiosAsync(null);
+            if (edificiosResponse?.Success == true && edificiosResponse.Data != null)
+            {
+                edificios = edificiosResponse.Data;
+            }
+
+            var salonesResponse = await ApiService.GetSalonesAsync(null);
+            if (salonesResponse?.Success == true && salonesResponse.Data != null)
+            {
+                salones = salonesResponse.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"Error al cargar datos: {ex.Message}", true);
+        }
+
+        isLoading = false;
+    }
+
+    private void SelectEdificio(int id)
+    {
+        selectedEdificioId = id;
+    }
+
+    private void ShowAddEdificio()
+    {
+        editingEdificio = new EdificioDto { Activo = true };
+        showEdificioModal = true;
+    }
+
+    private void EditEdificio(EdificioDto edificio)
+    {
+        editingEdificio = new EdificioDto
+        {
+            Id = edificio.Id,
+            Codigo = edificio.Codigo,
+            Nombre = edificio.Nombre,
+            Ubicacion = edificio.Ubicacion,
+            Pisos = edificio.Pisos,
+            Activo = edificio.Activo
+        };
+        showEdificioModal = true;
+    }
+
+    private async Task SaveEdificio()
+    {
+        if (editingEdificio == null || string.IsNullOrWhiteSpace(editingEdificio.Nombre))
+        {
+            ShowMessage("El nombre es requerido", true);
+            return;
+        }
+
+        try
+        {
+            ApiResponse<EdificioDto>? response;
+            if (editingEdificio.Id > 0)
+            {
+                response = await ApiService.UpdateEdificioAsync(editingEdificio.Id, editingEdificio);
+            }
+            else
+            {
+                response = await ApiService.CreateEdificioAsync(editingEdificio);
+            }
+
+            if (response?.Success == true)
+            {
+                ShowMessage("Edificio guardado exitosamente", false);
+                CloseModals();
+                await LoadDataAsync();
+            }
+            else
+            {
+                ShowMessage(response?.Message ?? "Error al guardar", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"Error: {ex.Message}", true);
+        }
+    }
+
+    private async Task DeleteEdificio(int id)
+    {
+        try
+        {
+            var response = await ApiService.DeleteEdificioAsync(id);
+            if (response?.Success == true)
+            {
+                ShowMessage("Edificio eliminado", false);
+                if (selectedEdificioId == id) selectedEdificioId = null;
+                await LoadDataAsync();
+            }
+            else
+            {
+                ShowMessage(response?.Message ?? "Error al eliminar", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"Error: {ex.Message}", true);
+        }
+    }
+
+    private void ShowAddSalon()
+    {
+        if (!selectedEdificioId.HasValue) return;
+        editingSalon = new SalonDto { IdEdificio = selectedEdificioId.Value, Activo = true };
+        showSalonModal = true;
+    }
+
+    private void EditSalon(SalonDto salon)
+    {
+        editingSalon = new SalonDto
+        {
+            Id = salon.Id,
+            IdEdificio = salon.IdEdificio,
+            Codigo = salon.Codigo,
+            Nombre = salon.Nombre,
+            TipoEspacio = salon.TipoEspacio,
+            Piso = salon.Piso,
+            Capacidad = salon.Capacidad,
+            Activo = salon.Activo
+        };
+        showSalonModal = true;
+    }
+
+    private async Task SaveSalon()
+    {
+        if (editingSalon == null || string.IsNullOrWhiteSpace(editingSalon.Nombre))
+        {
+            ShowMessage("El nombre es requerido", true);
+            return;
+        }
+
+        try
+        {
+            ApiResponse<SalonDto>? response;
+            if (editingSalon.Id > 0)
+            {
+                response = await ApiService.UpdateSalonAsync(editingSalon.Id, editingSalon);
+            }
+            else
+            {
+                response = await ApiService.CreateSalonAsync(editingSalon);
+            }
+
+            if (response?.Success == true)
+            {
+                ShowMessage("Salón guardado exitosamente", false);
+                CloseModals();
+                await LoadDataAsync();
+            }
+            else
+            {
+                ShowMessage(response?.Message ?? "Error al guardar", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"Error: {ex.Message}", true);
+        }
+    }
+
+    private async Task DeleteSalon(int id)
+    {
+        try
+        {
+            var response = await ApiService.DeleteSalonAsync(id);
+            if (response?.Success == true)
+            {
+                ShowMessage("Salón eliminado", false);
+                await LoadDataAsync();
+            }
+            else
+            {
+                ShowMessage(response?.Message ?? "Error al eliminar", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"Error: {ex.Message}", true);
+        }
+    }
+
+    private void CloseModals()
+    {
+        showEdificioModal = false;
+        showSalonModal = false;
+        editingEdificio = null;
+        editingSalon = null;
+    }
+
+    private void ShowMessage(string msg, bool error)
+    {
+        message = msg;
+        isError = error;
+    }
+}
