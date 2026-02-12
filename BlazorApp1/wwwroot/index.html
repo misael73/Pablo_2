@@ -14,11 +14,22 @@
     
     <!-- Global print styles to hide Blazor UI when printing -->
     <style>
+        /* Hide the loading circle SVG by default once loaded */
+        svg.loading-progress {
+            display: none !important;
+        }
+        .loading-progress-text {
+            display: none !important;
+        }
+        
         @media print {
-            #app > svg.loading-progress,
-            #app > .loading-progress-text,
+            /* Completely hide all Blazor framework elements */
+            svg.loading-progress,
+            .loading-progress,
+            .loading-progress-text,
             #blazor-error-ui,
-            .no-print {
+            .no-print,
+            [class*="loading"] {
                 display: none !important;
                 visibility: hidden !important;
                 height: 0 !important;
@@ -26,12 +37,18 @@
                 overflow: hidden !important;
                 position: absolute !important;
                 left: -9999px !important;
+                opacity: 0 !important;
             }
+            
             body {
                 margin: 0 !important;
                 padding: 0 !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+            }
+            
+            html, body {
+                overflow: visible !important;
             }
         }
     </style>

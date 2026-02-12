@@ -9,13 +9,13 @@
 
 @if (isLoading)
 {
-    <div style="text-align: center; padding: 50px;">
+    <div class="no-print" style="text-align: center; padding: 50px;">
         <p>Cargando documento...</p>
     </div>
 }
 else if (reporte == null)
 {
-    <div style="text-align: center; padding: 50px;">
+    <div class="no-print" style="text-align: center; padding: 50px;">
         <p style="color: red;">Reporte no encontrado</p>
         <a href="/mis-reportes">Volver</a>
     </div>
@@ -157,8 +157,12 @@ else
         }
         
         @@media print {
-            .print-buttons {
+            .print-buttons,
+            .no-print {
                 display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                overflow: hidden !important;
             }
             
             body {
