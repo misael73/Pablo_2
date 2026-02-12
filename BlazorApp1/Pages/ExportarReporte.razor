@@ -5,6 +5,8 @@
 @inject CustomAuthStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 
+<PageTitle>Solicitud de Mantenimiento - @(reporte?.Folio ?? "Cargando...")</PageTitle>
+
 @if (isLoading)
 {
     <div style="text-align: center; padding: 50px;">
@@ -210,9 +212,28 @@ else
         }
         
         @@media print {
-            .no-print { display: none !important; }
-            body { padding: 0; margin: 0; }
-            .print-document { max-width: none; padding: 0; }
+            .no-print { 
+                display: none !important; 
+                visibility: hidden !important;
+                height: 0 !important;
+                width: 0 !important;
+                overflow: hidden !important;
+            }
+            body { 
+                padding: 0; 
+                margin: 0; 
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .print-document { 
+                max-width: none; 
+                padding: 0;
+                margin: 0;
+            }
+            html, body {
+                height: auto !important;
+                overflow: visible !important;
+            }
         }
     </style>
 
