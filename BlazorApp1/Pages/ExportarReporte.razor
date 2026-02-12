@@ -1,5 +1,6 @@
 @page "/exportar-reporte/{Id:int}"
-@attribute [Authorize]
+@layout EmptyLayout
+@attribute [AllowAnonymous]
 @inject ApiService ApiService
 @inject CustomAuthStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
