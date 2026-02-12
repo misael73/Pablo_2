@@ -9,243 +9,517 @@
 
 @if (isLoading)
 {
-    <div class="no-print" style="text-align: center; padding: 50px;">
+    <div class="loading-container no-print">
+        <div class="spinner"></div>
         <p>Cargando documento...</p>
     </div>
 }
 else if (reporte == null)
 {
-    <div class="no-print" style="text-align: center; padding: 50px;">
-        <p style="color: red;">Reporte no encontrado</p>
-        <a href="/mis-reportes">Volver</a>
+    <div class="error-container no-print">
+        <div class="error-icon">⚠️</div>
+        <h2>Reporte no encontrado</h2>
+        <p>El reporte que buscas no existe o no tienes permiso para verlo.</p>
+        <button class="btn-back" @onclick="GoBack">← Volver</button>
     </div>
 }
 else
 {
-    <!-- Print styles inline for this page only -->
     <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
         
         body {
-            font-family: Arial, sans-serif;
-            font-size: 11pt;
-            margin: 0;
-            padding: 0;
-            background-color: white;
-        }
-        
-        .document-container {
-            max-width: 800px;
-            margin: 0 auto;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             padding: 20px;
-            background-color: white;
         }
         
-        .print-buttons {
+        .page-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        /* Loading State */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
             margin-bottom: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            text-align: right;
         }
         
-        .print-buttons button {
+        @@keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Error State */
+        .error-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: white;
+            text-align: center;
+        }
+        
+        .error-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        /* Action Buttons */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .action-bar h1 {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             padding: 10px 20px;
-            margin-left: 10px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
         
         .btn-print {
-            background-color: #003366;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+        }
+        
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
         
         .btn-back {
-            background-color: #6c757d;
+            background: #f1f3f4;
+            color: #5f6368;
+        }
+        
+        .btn-back:hover {
+            background: #e8eaed;
+        }
+        
+        /* Document Card */
+        .document-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        /* Header */
+        .document-header {
+            background: linear-gradient(135deg, #1a365d 0%, #2d4a77 100%);
             color: white;
-        }
-        
-        .document-content {
-            border: 2px solid #000;
-        }
-        
-        .header-row {
+            padding: 25px 30px;
             display: flex;
-            border-bottom: 2px solid #000;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+        
+        .folio-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-align: center;
         }
         
         .folio-label {
-            width: 120px;
-            background-color: #d9d9d9;
-            padding: 10px;
-            font-weight: bold;
-            text-align: center;
-            border-right: 1px solid #000;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
         }
         
         .folio-value {
-            flex: 1;
-            padding: 10px;
-            font-weight: bold;
-            font-size: 14pt;
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 4px;
         }
         
-        .section-header {
-            background-color: #d9d9d9;
-            padding: 8px 10px;
-            font-weight: bold;
-            text-align: center;
-            border-bottom: 1px solid #000;
+        /* Document Body */
+        .document-body {
+            padding: 30px;
         }
         
-        .checkbox-grid {
-            display: grid;
-            grid-template-columns: 1fr 50px 1fr 50px;
-            border-bottom: 1px solid #000;
+        /* Section */
+        .section {
+            margin-bottom: 25px;
         }
         
-        .checkbox-label {
-            padding: 8px 10px;
-            border-right: 1px solid #000;
+        .section:last-child {
+            margin-bottom: 0;
         }
         
-        .checkbox-box {
-            padding: 8px 10px;
-            text-align: center;
-            border-right: 1px solid #000;
-            font-weight: bold;
-        }
-        
-        .checkbox-box:last-child {
-            border-right: none;
-        }
-        
-        .field-row {
+        .section-title {
             display: flex;
-            border-bottom: 1px solid #000;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a365d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
         }
         
-        .field-label {
-            width: 40%;
-            padding: 8px 10px;
-            background-color: #f0f0f0;
+        .section-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+        
+        /* Checkbox Grid */
+        .maintenance-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .maintenance-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+        
+        .maintenance-item.selected {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-color: #667eea;
+        }
+        
+        .checkbox {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: bold;
-            border-right: 1px solid #000;
+            color: white;
+            font-size: 14px;
         }
         
-        .field-value {
-            flex: 1;
-            padding: 8px 10px;
+        .checkbox.checked {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
         }
         
-        .description-content {
+        .maintenance-label {
+            font-size: 13px;
+            color: #374151;
+        }
+        
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .info-item {
+            background: #f8fafc;
             padding: 15px;
-            min-height: 150px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-item.full-width {
+            grid-column: span 2;
+        }
+        
+        .info-label {
+            font-size: 11px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 14px;
+            color: #1f2937;
+            font-weight: 500;
+        }
+        
+        /* Description Box */
+        .description-box {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            min-height: 120px;
+        }
+        
+        .description-text {
+            font-size: 14px;
+            color: #374151;
+            line-height: 1.7;
             white-space: pre-wrap;
         }
         
-        .footer {
-            text-align: right;
-            padding: 10px;
-            font-size: 9pt;
-            color: #666;
+        /* Footer */
+        .document-footer {
+            background: #f8fafc;
+            padding: 15px 30px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #6b7280;
         }
         
+        .footer-logo {
+            font-weight: 600;
+            color: #1a365d;
+        }
+        
+        /* Print Styles */
         @@media print {
-            .print-buttons,
-            .no-print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            .page-wrapper {
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+            
+            .action-bar,
+            .no-print,
+            .btn-group,
+            .loading-container,
+            .error-container {
                 display: none !important;
                 visibility: hidden !important;
                 height: 0 !important;
                 overflow: hidden !important;
+                position: absolute !important;
+                left: -9999px !important;
             }
             
-            body {
-                margin: 0;
-                padding: 0;
+            .document-card {
+                box-shadow: none !important;
+                border-radius: 0 !important;
             }
             
-            .document-container {
-                max-width: none;
-                padding: 0;
-                margin: 0;
+            .document-header {
+                background: #1a365d !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            .maintenance-item.selected {
+                background: #e8eef8 !important;
+            }
+            
+            .checkbox.checked {
+                background: #1a365d !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            .section-icon {
+                background: #1a365d !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
         }
     </style>
     
-    <div class="document-container">
-        <!-- Print buttons - hidden when printing -->
-        <div class="print-buttons">
-            <button class="btn-print" onclick="window.print()">
-                🖨️ Imprimir / Guardar PDF
-            </button>
-            <button class="btn-back" onclick="history.back()">
-                ← Volver
-            </button>
+    <div class="page-wrapper">
+        <!-- Action Bar (hidden when printing) -->
+        <div class="action-bar no-print">
+            <h1>📄 Vista Previa del Documento</h1>
+            <div class="btn-group">
+                <button class="btn btn-back" @onclick="GoBack">
+                    ← Volver
+                </button>
+                <button class="btn btn-print" onclick="window.print()">
+                    🖨️ Imprimir / Guardar PDF
+                </button>
+            </div>
         </div>
         
-        <!-- Document content -->
-        <div class="document-content">
-            <!-- FOLIO -->
-            <div class="header-row">
-                <div class="folio-label">FOLIO</div>
-                <div class="folio-value">@reporte.Folio</div>
+        <!-- Document Card -->
+        <div class="document-card">
+            <!-- Header -->
+            <div class="document-header">
+                <div>
+                    <div class="header-title">SOLICITUD DE MANTENIMIENTO CORRECTIVO</div>
+                    <div class="header-subtitle">TecNM Campus Ciudad Serdán</div>
+                </div>
+                <div class="folio-badge">
+                    <div class="folio-label">Folio</div>
+                    <div class="folio-value">@reporte.Folio</div>
+                </div>
             </div>
             
-            <!-- TIPO DE MANTENIMIENTO SOLICITADO -->
-            <div class="section-header">TIPO DE MANTENIMIENTO SOLICITADO</div>
-            
-            <div class="checkbox-grid">
-                <div class="checkbox-label">Vehicular</div>
-                <div class="checkbox-box">@(IsMaintenanceType("Vehicular") ? "X" : "")</div>
-                <div class="checkbox-label">Maquinaría de laboratorio</div>
-                <div class="checkbox-box">@(IsMaintenanceType("Maquinaria") || IsMaintenanceType("Laboratorio") ? "X" : "")</div>
+            <!-- Body -->
+            <div class="document-body">
+                <!-- Tipo de Mantenimiento -->
+                <div class="section">
+                    <div class="section-title">
+                        <span class="section-icon">🔧</span>
+                        Tipo de Mantenimiento Solicitado
+                    </div>
+                    <div class="maintenance-grid">
+                        <div class="maintenance-item @(IsMaintenanceType("Vehicular") ? "selected" : "")">
+                            <div class="checkbox @(IsMaintenanceType("Vehicular") ? "checked" : "")">
+                                @(IsMaintenanceType("Vehicular") ? "✓" : "")
+                            </div>
+                            <span class="maintenance-label">Vehicular</span>
+                        </div>
+                        <div class="maintenance-item @(IsMaintenanceType("Maquinaria") || IsMaintenanceType("Laboratorio") ? "selected" : "")">
+                            <div class="checkbox @(IsMaintenanceType("Maquinaria") || IsMaintenanceType("Laboratorio") ? "checked" : "")">
+                                @(IsMaintenanceType("Maquinaria") || IsMaintenanceType("Laboratorio") ? "✓" : "")
+                            </div>
+                            <span class="maintenance-label">Maquinaria de laboratorio</span>
+                        </div>
+                        <div class="maintenance-item @(IsMaintenanceType("Infraestructura") || IsMaintenanceType("Eléctric") || IsMaintenanceType("Plomería") ? "selected" : "")">
+                            <div class="checkbox @(IsMaintenanceType("Infraestructura") || IsMaintenanceType("Eléctric") || IsMaintenanceType("Plomería") ? "checked" : "")">
+                                @(IsMaintenanceType("Infraestructura") || IsMaintenanceType("Eléctric") || IsMaintenanceType("Plomería") ? "✓" : "")
+                            </div>
+                            <span class="maintenance-label">Infraestructura</span>
+                        </div>
+                        <div class="maintenance-item @(IsMaintenanceType("Aseo") || IsMaintenanceType("Limpieza") ? "selected" : "")">
+                            <div class="checkbox @(IsMaintenanceType("Aseo") || IsMaintenanceType("Limpieza") ? "checked" : "")">
+                                @(IsMaintenanceType("Aseo") || IsMaintenanceType("Limpieza") ? "✓" : "")
+                            </div>
+                            <span class="maintenance-label">Aseo de las áreas</span>
+                        </div>
+                        <div class="maintenance-item @(IsMaintenanceType("Cómputo") || IsMaintenanceType("TIC") || IsMaintenanceType("Comunicaciones") ? "selected" : "")">
+                            <div class="checkbox @(IsMaintenanceType("Cómputo") || IsMaintenanceType("TIC") || IsMaintenanceType("Comunicaciones") ? "checked" : "")">
+                                @(IsMaintenanceType("Cómputo") || IsMaintenanceType("TIC") || IsMaintenanceType("Comunicaciones") ? "✓" : "")
+                            </div>
+                            <span class="maintenance-label">Equipo de cómputo y comunicaciones</span>
+                        </div>
+                        <div class="maintenance-item @(IsOtherMaintenanceType() ? "selected" : "")">
+                            <div class="checkbox @(IsOtherMaintenanceType() ? "checked" : "")">
+                                @(IsOtherMaintenanceType() ? "✓" : "")
+                            </div>
+                            <span class="maintenance-label">Otros @(IsOtherMaintenanceType() ? $"({reporte.CategoriaNombre})" : "")</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Información del Solicitante -->
+                <div class="section">
+                    <div class="section-title">
+                        <span class="section-icon">👤</span>
+                        Información del Solicitante
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Área Solicitante</div>
+                            <div class="info-value">@(reporte.ReportanteDepartamento ?? reporte.EdificioNombre ?? "No especificado")</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Fecha de Solicitud</div>
+                            <div class="info-value">@reporte.FechaReporte.ToString("dd 'de' MMMM 'de' yyyy", new System.Globalization.CultureInfo("es-MX"))</div>
+                        </div>
+                        <div class="info-item full-width">
+                            <div class="info-label">Nombre del Solicitante</div>
+                            <div class="info-value">C. @reporte.ReportanteNombre</div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(reporte.EdificioNombre) || !string.IsNullOrEmpty(reporte.SalonNombre))
+                        {
+                            <div class="info-item">
+                                <div class="info-label">Ubicación</div>
+                                <div class="info-value">@(reporte.EdificioNombre ?? "") @(!string.IsNullOrEmpty(reporte.SalonNombre) ? $"- {reporte.SalonNombre}" : "")</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <!-- Descripción del Servicio -->
+                <div class="section">
+                    <div class="section-title">
+                        <span class="section-icon">📝</span>
+                        Descripción del Servicio Solicitado o Falla a Reparar
+                    </div>
+                    <div class="description-box">
+                        <div class="description-text">@reporte.Descripcion</div>
+                    </div>
+                </div>
             </div>
             
-            <div class="checkbox-grid">
-                <div class="checkbox-label">Infraestructura</div>
-                <div class="checkbox-box">@(IsMaintenanceType("Infraestructura") || IsMaintenanceType("Eléctric") || IsMaintenanceType("Plomería") ? "X" : "")</div>
-                <div class="checkbox-label">Aseo de las áreas</div>
-                <div class="checkbox-box">@(IsMaintenanceType("Aseo") || IsMaintenanceType("Limpieza") ? "X" : "")</div>
+            <!-- Footer -->
+            <div class="document-footer">
+                <span class="footer-logo">SIREFI - Sistema de Reportes</span>
+                <span>Rev. Noviembre 2023</span>
             </div>
-            
-            <div class="checkbox-grid">
-                <div class="checkbox-label">Equipo de cómputo y comunicaciones</div>
-                <div class="checkbox-box">@(IsMaintenanceType("Cómputo") || IsMaintenanceType("TIC") || IsMaintenanceType("Comunicaciones") ? "X" : "")</div>
-                <div class="checkbox-label">Otros</div>
-                <div class="checkbox-box">@(IsOtherMaintenanceType() ? "X" : "")</div>
-            </div>
-            
-            <!-- ÁREA SOLICITANTE / FECHA -->
-            <div class="field-row">
-                <div class="field-label">ÁREA SOLICITANTE</div>
-                <div class="field-value" style="border-right: 1px solid #000;">@(reporte.ReportanteDepartamento ?? reporte.EdificioNombre ?? "")</div>
-                <div class="field-label" style="width: 30%;">FECHA DE SOLICITUD DE MANTENIMIENTO</div>
-                <div class="field-value" style="width: 15%;">@reporte.FechaReporte.ToString("dd/MM/yyyy")</div>
-            </div>
-            
-            <!-- NOMBRE Y FIRMA DEL SOLICITANTE -->
-            <div class="field-row">
-                <div class="field-label">NOMBRE Y FIRMA DEL SOLICITANTE</div>
-                <div class="field-value">C. @reporte.ReportanteNombre</div>
-            </div>
-            
-            <!-- DESCRIPCIÓN DEL SERVICIO -->
-            <div class="section-header">DESCRIPCIÓN DEL SERVICIO SOLICITADO O FALLA A REPARAR</div>
-            <div class="description-content">
-                @reporte.Descripcion
-            </div>
-            
-        </div>
-        
-        <!-- Footer -->
-        <div class="footer">
-            Rev. Noviembre 2023
         </div>
     </div>
 }
@@ -288,6 +562,11 @@ else
         }
 
         isLoading = false;
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/mis-reportes");
     }
 
     private bool IsMaintenanceType(string keyword)
