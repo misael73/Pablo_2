@@ -19,17 +19,17 @@ else if (reporte == null)
 }
 else
 {
-    <!-- Print-ready document -->
+    <!-- Print-ready document matching TECNM template -->
     <style>
         @@page {
             size: letter;
-            margin: 2cm;
+            margin: 1.5cm;
         }
         
         body {
             font-family: Arial, sans-serif;
-            font-size: 11pt;
-            line-height: 1.4;
+            font-size: 10pt;
+            line-height: 1.3;
             color: #000;
             margin: 0;
             padding: 0;
@@ -39,141 +39,154 @@ else
         .print-document {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
             background-color: white;
         }
         
-        .print-header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #003366;
-            padding-bottom: 15px;
-        }
-        
-        .print-header h1 {
-            margin: 0;
-            color: #003366;
-            font-size: 20pt;
-            text-transform: uppercase;
-        }
-        
-        .print-header h2 {
-            margin: 5px 0 0 0;
-            color: #666;
-            font-size: 14pt;
-            font-weight: normal;
-        }
-        
-        .logo-section {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .logo-section h3 {
-            margin: 0;
-            color: #003366;
-        }
-        
-        .logo-section h4 {
-            margin: 5px 0;
-            color: #003366;
-        }
-        
-        .info-section {
-            margin-bottom: 20px;
-        }
-        
-        .info-row {
-            display: table;
+        .header-table {
             width: 100%;
+            border-collapse: collapse;
             margin-bottom: 10px;
         }
         
-        .info-label {
-            display: table-cell;
-            width: 30%;
-            font-weight: bold;
-            padding: 8px;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            vertical-align: top;
+        .header-table td {
+            vertical-align: middle;
+            padding: 5px;
         }
         
-        .info-value {
-            display: table-cell;
-            width: 70%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-left: none;
-            vertical-align: top;
+        .logo-cell {
+            width: 120px;
+            text-align: center;
         }
         
-        .section-title {
-            background-color: #003366;
-            color: white;
-            padding: 10px;
-            margin-top: 20px;
-            margin-bottom: 10px;
+        .logo-img {
+            height: 60px;
+            width: auto;
+        }
+        
+        .title-cell {
+            text-align: center;
+        }
+        
+        .title-cell h2 {
+            margin: 0;
+            font-size: 14pt;
+            color: #003366;
+        }
+        
+        .title-cell h3 {
+            margin: 5px 0 0 0;
+            font-size: 12pt;
+            font-weight: normal;
+            color: #333;
+        }
+        
+        .folio-box {
+            border: 2px solid #000;
+            padding: 8px 15px;
+            text-align: center;
             font-weight: bold;
             font-size: 12pt;
+            min-width: 100px;
         }
         
-        .description-box {
-            border: 1px solid #ccc;
-            padding: 15px;
-            min-height: 100px;
-            background-color: #fafafa;
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .main-table td, .main-table th {
+            border: 1px solid #000;
+            padding: 6px 8px;
+            vertical-align: top;
+        }
+        
+        .section-header {
+            background-color: #d9d9d9;
+            font-weight: bold;
+            text-align: center;
+            font-size: 10pt;
+        }
+        
+        .checkbox-section {
+            padding: 10px;
+        }
+        
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px 20px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 9pt;
+        }
+        
+        .checkbox-box {
+            width: 14px;
+            height: 14px;
+            border: 1px solid #000;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 10pt;
+        }
+        
+        .checkbox-box.checked {
+            background-color: #000;
+            color: white;
+        }
+        
+        .label-cell {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            width: 35%;
+        }
+        
+        .value-cell {
+            width: 65%;
+        }
+        
+        .half-width {
+            width: 50%;
+        }
+        
+        .description-area {
+            min-height: 120px;
             white-space: pre-wrap;
         }
         
         .signature-section {
-            margin-top: 40px;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .signature-box {
-            width: 45%;
+            margin-top: 30px;
             text-align: center;
-            margin-top: 60px;
         }
         
         .signature-line {
-            border-top: 2px solid #000;
-            margin-top: 5px;
+            width: 300px;
+            border-top: 1px solid #000;
+            margin: 60px auto 5px auto;
             padding-top: 5px;
+            font-size: 9pt;
         }
         
         .print-footer {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 9pt;
+            margin-top: 20px;
+            text-align: right;
+            font-size: 8pt;
             color: #666;
-            border-top: 1px solid #ccc;
-            padding-top: 10px;
         }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-        
-        .status-recibido { background-color: #ff4444; color: white; }
-        .status-proceso { background-color: #ffeb3b; color: black; }
-        .status-solucionado { background-color: #00c851; color: white; }
-        .status-cancelado { background-color: #999; color: white; }
-        
-        .priority-alta { color: #ff0000; font-weight: bold; }
-        .priority-media { color: #ff9800; font-weight: bold; }
-        .priority-baja { color: #4caf50; font-weight: bold; }
         
         .no-print {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: right;
             padding: 10px;
             background-color: #f5f5f5;
+            border-radius: 5px;
         }
         
         .no-print button {
@@ -197,13 +210,13 @@ else
         
         @@media print {
             .no-print { display: none !important; }
-            body { padding: 0; }
+            body { padding: 0; margin: 0; }
             .print-document { max-width: none; padding: 0; }
         }
     </style>
 
     <div class="print-document">
-        <!-- Print Button -->
+        <!-- Print Button (hidden when printing) -->
         <div class="no-print">
             <button class="btn-print" onclick="window.print()">
                 🖨️ Imprimir / Guardar como PDF
@@ -213,135 +226,148 @@ else
             </button>
         </div>
 
-        <!-- Logo Section -->
-        <div class="logo-section">
-            <h3>TECNOLÓGICO NACIONAL DE MÉXICO</h3>
-            <h4>INSTITUTO TECNOLÓGICO DE CD. SERDÁN</h4>
-        </div>
+        <!-- Header with logos and title -->
+        <table class="header-table">
+            <tr>
+                <td class="logo-cell">
+                    <!-- TECNM Logo placeholder - blue square with TECNM text -->
+                    <div style="background-color: #003366; color: white; padding: 10px; font-size: 10pt; font-weight: bold;">
+                        TECNM
+                    </div>
+                </td>
+                <td class="title-cell">
+                    <h2>TECNM CAMPUS CIUDAD SERDÁN</h2>
+                    <h3>Solicitud de mantenimiento correctivo</h3>
+                </td>
+                <td class="logo-cell">
+                    <!-- Secondary logo placeholder -->
+                    <div style="background-color: #8B0000; color: white; padding: 10px; font-size: 10pt; font-weight: bold;">
+                        ITCS
+                    </div>
+                </td>
+                <td style="width: 120px; text-align: right;">
+                    <div class="folio-box">
+                        FOLIO<br>
+                        @reporte.Folio
+                    </div>
+                </td>
+            </tr>
+        </table>
 
-        <!-- Header -->
-        <div class="print-header">
-            <h1>Solicitud de Mantenimiento</h1>
-            <h2>Sistema de Reporte de Fallas e Incidencias (SIREFI)</h2>
-        </div>
+        <!-- Main form content -->
+        <table class="main-table">
+            <!-- Maintenance Type Section -->
+            <tr>
+                <td colspan="4" class="section-header">
+                    TIPO DE MANTENIMIENTO SOLICITADO
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="checkbox-section">
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <span class="checkbox-box @(IsMaintenanceType("Vehicular") ? "checked" : "")">@(IsMaintenanceType("Vehicular") ? "✓" : "")</span>
+                            <span>Vehicular</span>
+                        </div>
+                        <div class="checkbox-item">
+                            <span class="checkbox-box @(IsMaintenanceType("Aseo") ? "checked" : "")">@(IsMaintenanceType("Aseo") ? "✓" : "")</span>
+                            <span>Aseo de las áreas</span>
+                        </div>
+                        <div class="checkbox-item">
+                            <span class="checkbox-box @(IsMaintenanceType("Maquinaria") || IsMaintenanceType("Laboratorio") ? "checked" : "")">@(IsMaintenanceType("Maquinaria") || IsMaintenanceType("Laboratorio") ? "✓" : "")</span>
+                            <span>Maquinaría de laboratorio</span>
+                        </div>
+                        <div class="checkbox-item">
+                            <span class="checkbox-box @(IsMaintenanceType("Cómputo") || IsMaintenanceType("TIC") || IsMaintenanceType("Comunicaciones") ? "checked" : "")">@(IsMaintenanceType("Cómputo") || IsMaintenanceType("TIC") || IsMaintenanceType("Comunicaciones") ? "✓" : "")</span>
+                            <span>Equipo de cómputo y comunicaciones</span>
+                        </div>
+                        <div class="checkbox-item">
+                            <span class="checkbox-box @(IsMaintenanceType("Infraestructura") || IsMaintenanceType("Eléctric") || IsMaintenanceType("Plomería") || IsMaintenanceType("Carpintería") ? "checked" : "")">@(IsMaintenanceType("Infraestructura") || IsMaintenanceType("Eléctric") || IsMaintenanceType("Plomería") || IsMaintenanceType("Carpintería") ? "✓" : "")</span>
+                            <span>Infraestructura</span>
+                        </div>
+                        <div class="checkbox-item">
+                            <span class="checkbox-box @(IsOtherMaintenanceType() ? "checked" : "")">@(IsOtherMaintenanceType() ? "✓" : "")</span>
+                            <span>Otros: @(IsOtherMaintenanceType() ? reporte.CategoriaNombre : "")</span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
 
-        <!-- Report Information -->
-        <div class="info-section">
-            <div class="info-row">
-                <div class="info-label">FOLIO:</div>
-                <div class="info-value"><strong>@reporte.Folio</strong></div>
-            </div>
-            
-            <div class="info-row">
-                <div class="info-label">FECHA DE REPORTE:</div>
-                <div class="info-value">@reporte.FechaReporte.ToString("dd/MM/yyyy HH:mm")</div>
-            </div>
-            
-            <div class="info-row">
-                <div class="info-label">REPORTA:</div>
-                <div class="info-value">
+            <!-- Area and Date Row -->
+            <tr>
+                <td class="label-cell half-width">ÁREA SOLICITANTE</td>
+                <td class="value-cell half-width">@reporte.EdificioNombre @(reporte.SalonNombre != null ? $"- {reporte.SalonNombre}" : "")</td>
+                <td class="label-cell" style="width: 20%;">FECHA DE SOLICITUD</td>
+                <td class="value-cell" style="width: 20%;">@reporte.FechaReporte.ToString("dd/MM/yyyy")</td>
+            </tr>
+
+            <!-- Requester Name and Signature -->
+            <tr>
+                <td class="label-cell" colspan="2">NOMBRE Y FIRMA DEL SOLICITANTE</td>
+                <td class="value-cell" colspan="2">
                     @reporte.ReportanteNombre<br>
-                    <small>@reporte.ReportanteCorreo</small>
-                </div>
-            </div>
-            
-            <div class="info-row">
-                <div class="info-label">ÁREA / UBICACIÓN:</div>
-                <div class="info-value">@reporte.EdificioNombre - @(reporte.SalonNombre ?? "N/A")</div>
-            </div>
-            
-            <div class="info-row">
-                <div class="info-label">CATEGORÍA:</div>
-                <div class="info-value">@reporte.CategoriaNombre</div>
-            </div>
-            
-            <div class="info-row">
-                <div class="info-label">PRIORIDAD:</div>
-                <div class="info-value">
-                    <span class="@GetPriorityClass(reporte.PrioridadNombre)">
-                        @reporte.PrioridadNombre
-                    </span>
-                </div>
-            </div>
-            
-            <div class="info-row">
-                <div class="info-label">ESTATUS:</div>
-                <div class="info-value">
-                    <span class="status-badge @GetStatusClass(reporte.EstadoNombre)">
-                        @reporte.EstadoNombre
-                    </span>
-                </div>
-            </div>
-        </div>
+                    <small style="color: #666;">@reporte.ReportanteCorreo</small>
+                </td>
+            </tr>
 
-        <!-- Problem Description -->
-        <div class="section-title">DESCRIPCIÓN DEL PROBLEMA</div>
-        <div class="description-box">
-            @reporte.Descripcion
-        </div>
+            <!-- Description Section -->
+            <tr>
+                <td colspan="4" class="section-header">
+                    DESCRIPCIÓN DEL SERVICIO SOLICITADO O FALLA A REPARAR
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="description-area">
+                    @reporte.Descripcion
+                </td>
+            </tr>
 
-        <!-- Service/Action Details -->
-        @if (!string.IsNullOrEmpty(ultimaAccion))
-        {
-            <div class="section-title">SERVICIO REALIZADO / ACCIONES TOMADAS</div>
-            <div class="description-box">
-                @ultimaAccion
-                @if (!string.IsNullOrEmpty(fechaAccion))
-                {
-                    <br /><br /><small><strong>Fecha:</strong> @fechaAccion</small>
-                }
-            </div>
-        }
-
-        <!-- Technical Details -->
-        <div class="info-section" style="margin-top: 20px;">
-            @if (reporte.FechaAsignacion.HasValue)
+            @if (!string.IsNullOrEmpty(ultimaAccion))
             {
-                <div class="info-row">
-                    <div class="info-label">FECHA DE ASIGNACIÓN:</div>
-                    <div class="info-value">@reporte.FechaAsignacion.Value.ToString("dd/MM/yyyy HH:mm")</div>
-                </div>
+                <!-- Actions Section (if there are comments) -->
+                <tr>
+                    <td colspan="4" class="section-header">
+                        SERVICIO REALIZADO / ACCIONES TOMADAS
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="description-area">
+                        @ultimaAccion
+                        @if (!string.IsNullOrEmpty(fechaAccion))
+                        {
+                            <br><small><strong>Fecha:</strong> @fechaAccion</small>
+                        }
+                    </td>
+                </tr>
             }
-            
-            @if (reporte.FechaFinalizacion.HasValue)
-            {
-                <div class="info-row">
-                    <div class="info-label">FECHA DE SOLUCIÓN:</div>
-                    <div class="info-value">@reporte.FechaFinalizacion.Value.ToString("dd/MM/yyyy HH:mm")</div>
-                </div>
-            }
-            
+
+            <!-- Status and Priority Row (extra info) -->
+            <tr>
+                <td class="label-cell">PRIORIDAD</td>
+                <td class="value-cell">@reporte.PrioridadNombre</td>
+                <td class="label-cell">ESTATUS</td>
+                <td class="value-cell">@reporte.EstadoNombre</td>
+            </tr>
+
             @if (!string.IsNullOrEmpty(reporte.TecnicoNombre))
             {
-                <div class="info-row">
-                    <div class="info-label">TÉCNICO ASIGNADO:</div>
-                    <div class="info-value">@reporte.TecnicoNombre</div>
-                </div>
+                <tr>
+                    <td class="label-cell">TÉCNICO ASIGNADO</td>
+                    <td class="value-cell" colspan="3">@reporte.TecnicoNombre</td>
+                </tr>
             }
-        </div>
+        </table>
 
-        <!-- Signatures -->
+        <!-- Signature Section -->
         <div class="signature-section">
-            <div class="signature-box">
-                <div class="signature-line">
-                    <strong>SOLICITANTE</strong><br />
-                    @reporte.ReportanteNombre
-                </div>
-            </div>
-            
-            <div class="signature-box">
-                <div class="signature-line">
-                    <strong>TÉCNICO RESPONSABLE</strong><br />
-                    @(string.IsNullOrEmpty(reporte.TecnicoNombre) ? "______________________" : reporte.TecnicoNombre)
-                </div>
+            <div class="signature-line">
+                NOMBRE Y FIRMA DEL SOLICITANTE
             </div>
         </div>
 
         <!-- Footer -->
         <div class="print-footer">
-            <p><strong>Sistema de Reporte de Fallas e Incidencias (SIREFI)</strong></p>
-            <p>Instituto Tecnológico de Cd. Serdán - Tecnológico Nacional de México</p>
-            <p>Documento generado el @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+            Rev. Noviembre 2023
         </div>
     </div>
 }
@@ -354,6 +380,13 @@ else
     private bool isLoading = true;
     private string ultimaAccion = "";
     private string fechaAccion = "";
+
+    // Known maintenance type keywords for checkbox matching
+    private static readonly string[] VehicularKeywords = { "vehicular", "vehículo", "auto", "camioneta", "transporte" };
+    private static readonly string[] MaquinariaKeywords = { "maquinaria", "laboratorio", "equipo de lab" };
+    private static readonly string[] InfraestructuraKeywords = { "infraestructura", "eléctric", "plomería", "carpintería", "pintura", "albañilería", "herrería" };
+    private static readonly string[] AseoKeywords = { "aseo", "limpieza", "jardinería" };
+    private static readonly string[] ComputoKeywords = { "cómputo", "computo", "tic", "comunicaciones", "red", "internet", "software", "hardware", "pc", "computadora" };
 
     protected override async Task OnInitializedAsync()
     {
@@ -401,26 +434,25 @@ else
         isLoading = false;
     }
 
-    private string GetStatusClass(string? estado)
+    private bool IsMaintenanceType(string keyword)
     {
-        return estado?.ToLower() switch
-        {
-            "resuelto" => "status-solucionado",
-            "en proceso" => "status-proceso",
-            "recibido" => "status-recibido",
-            "cancelado" => "status-cancelado",
-            _ => ""
-        };
+        if (reporte?.CategoriaNombre == null) return false;
+        var categoria = reporte.CategoriaNombre.ToLower();
+        return categoria.Contains(keyword.ToLower());
     }
 
-    private string GetPriorityClass(string? prioridad)
+    private bool IsOtherMaintenanceType()
     {
-        return prioridad?.ToLower() switch
-        {
-            "alta" => "priority-alta",
-            "media" => "priority-media",
-            "baja" => "priority-baja",
-            _ => ""
-        };
+        if (reporte?.CategoriaNombre == null) return false;
+        var categoria = reporte.CategoriaNombre.ToLower();
+        
+        // Check if it doesn't match any of the known categories
+        bool isVehicular = VehicularKeywords.Any(k => categoria.Contains(k));
+        bool isMaquinaria = MaquinariaKeywords.Any(k => categoria.Contains(k));
+        bool isInfraestructura = InfraestructuraKeywords.Any(k => categoria.Contains(k));
+        bool isAseo = AseoKeywords.Any(k => categoria.Contains(k));
+        bool isComputo = ComputoKeywords.Any(k => categoria.Contains(k));
+        
+        return !isVehicular && !isMaquinaria && !isInfraestructura && !isAseo && !isComputo;
     }
 }
