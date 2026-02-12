@@ -184,6 +184,7 @@ public class ReportesController : ControllerBase
                 IdReportante = reporte.IdReportante,
                 ReportanteNombre = reporte.IdReportanteNavigation.Nombre,
                 ReportanteCorreo = reporte.IdReportanteNavigation.Correo,
+                ReportanteDepartamento = reporte.IdReportanteNavigation.Departamento,
                 IdAsignadoA = reporte.IdAsignadoA,
                 TecnicoNombre = reporte.IdAsignadoANavigation?.Nombre,
                 FechaReporte = reporte.FechaReporte,

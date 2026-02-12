@@ -19,7 +19,7 @@ else if (reporte == null)
 }
 else
 {
-    <!-- Print-ready document matching TECNM template -->
+    <!-- Print-ready document matching TECNM Word template exactly -->
     <style>
         @@page {
             size: letter;
@@ -43,142 +43,81 @@ else
             background-color: white;
         }
         
-        .header-table {
-            width: 100%;
+        .folio-table {
+            width: auto;
             border-collapse: collapse;
+            margin-left: auto;
             margin-bottom: 10px;
         }
         
-        .header-table td {
-            vertical-align: middle;
-            padding: 5px;
+        .folio-table td {
+            border: 1px solid #000;
+            padding: 5px 15px;
+            font-size: 10pt;
         }
         
-        .logo-cell {
-            width: 120px;
-            text-align: center;
-        }
-        
-        .logo-img {
-            height: 60px;
-            width: auto;
-        }
-        
-        .title-cell {
-            text-align: center;
-        }
-        
-        .title-cell h2 {
-            margin: 0;
-            font-size: 14pt;
-            color: #003366;
-        }
-        
-        .title-cell h3 {
-            margin: 5px 0 0 0;
-            font-size: 12pt;
+        .folio-label {
+            background-color: #d9d9d9;
+            text-align: right;
             font-weight: normal;
-            color: #333;
         }
         
-        .folio-box {
-            border: 2px solid #000;
-            padding: 8px 15px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 12pt;
+        .folio-value {
+            text-align: left;
             min-width: 100px;
         }
         
         .main-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 5px;
         }
         
-        .main-table td, .main-table th {
+        .main-table td {
             border: 1px solid #000;
             padding: 6px 8px;
-            vertical-align: top;
+            vertical-align: middle;
+            font-size: 10pt;
         }
         
         .section-header {
-            background-color: #d9d9d9;
-            font-weight: bold;
+            background-color: #e6e6e6;
             text-align: center;
             font-size: 10pt;
         }
         
-        .checkbox-section {
+        .type-label {
+            text-align: right;
+            padding-right: 10px;
+        }
+        
+        .type-checkbox {
+            text-align: center;
+            width: 80px;
+        }
+        
+        .checkbox-x {
+            font-weight: bold;
+            font-size: 12pt;
+        }
+        
+        .field-label {
+            text-align: right;
+            padding-right: 8px;
+            white-space: nowrap;
+        }
+        
+        .description-cell {
+            min-height: 150px;
+            vertical-align: top;
             padding: 10px;
         }
         
-        .checkbox-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 5px 20px;
-        }
-        
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 9pt;
-        }
-        
-        .checkbox-box {
-            width: 14px;
-            height: 14px;
-            border: 1px solid #000;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 10pt;
-        }
-        
-        .checkbox-box.checked {
-            background-color: #000;
-            color: white;
-        }
-        
-        .label-cell {
-            background-color: #f0f0f0;
-            font-weight: bold;
-            width: 35%;
-        }
-        
-        .value-cell {
-            width: 65%;
-        }
-        
-        .half-width {
-            width: 50%;
-        }
-        
-        .description-area {
-            min-height: 120px;
-            white-space: pre-wrap;
-        }
-        
-        .signature-section {
-            margin-top: 30px;
-            text-align: center;
-        }
-        
-        .signature-line {
-            width: 300px;
-            border-top: 1px solid #000;
-            margin: 60px auto 5px auto;
-            padding-top: 5px;
-            font-size: 9pt;
-        }
-        
         .print-footer {
-            margin-top: 20px;
-            text-align: right;
+            margin-top: 15px;
+            text-align: left;
             font-size: 8pt;
-            color: #666;
+            color: #000;
         }
         
         .no-print {
@@ -226,144 +165,92 @@ else
             </button>
         </div>
 
-        <!-- Header with logos and title -->
-        <table class="header-table">
+        <!-- FOLIO Box (top right, separate table) -->
+        <table class="folio-table">
             <tr>
-                <td class="logo-cell">
-                    <!-- TECNM Logo placeholder - blue square with TECNM text -->
-                    <div style="background-color: #003366; color: white; padding: 10px; font-size: 10pt; font-weight: bold;">
-                        TECNM
-                    </div>
-                </td>
-                <td class="title-cell">
-                    <h2>TECNM CAMPUS CIUDAD SERDÁN</h2>
-                    <h3>Solicitud de mantenimiento correctivo</h3>
-                </td>
-                <td class="logo-cell">
-                    <!-- Secondary logo placeholder -->
-                    <div style="background-color: #8B0000; color: white; padding: 10px; font-size: 10pt; font-weight: bold;">
-                        ITCS
-                    </div>
-                </td>
-                <td style="width: 120px; text-align: right;">
-                    <div class="folio-box">
-                        FOLIO<br>
-                        @reporte.Folio
-                    </div>
-                </td>
+                <td class="folio-label">FOLIO:</td>
+                <td class="folio-value">@reporte.Folio</td>
             </tr>
         </table>
 
         <!-- Main form content -->
         <table class="main-table">
-            <!-- Maintenance Type Section -->
+            <!-- TIPO DE MANTENIMIENTO SOLICITADO Header -->
             <tr>
                 <td colspan="4" class="section-header">
-                    TIPO DE MANTENIMIENTO SOLICITADO
+                    TIPO DE MANTENIMIENTO SOLICITADO:
                 </td>
             </tr>
+            
+            <!-- Row 1: Vehicular | checkbox | Maquinaría de laboratorio | checkbox -->
             <tr>
-                <td colspan="4" class="checkbox-section">
-                    <div class="checkbox-grid">
-                        <div class="checkbox-item">
-                            <span class="checkbox-box @(IsMaintenanceType("Vehicular") ? "checked" : "")">@(IsMaintenanceType("Vehicular") ? "✓" : "")</span>
-                            <span>Vehicular</span>
-                        </div>
-                        <div class="checkbox-item">
-                            <span class="checkbox-box @(IsMaintenanceType("Aseo") ? "checked" : "")">@(IsMaintenanceType("Aseo") ? "✓" : "")</span>
-                            <span>Aseo de las áreas</span>
-                        </div>
-                        <div class="checkbox-item">
-                            <span class="checkbox-box @(IsMaintenanceType("Maquinaria") || IsMaintenanceType("Laboratorio") ? "checked" : "")">@(IsMaintenanceType("Maquinaria") || IsMaintenanceType("Laboratorio") ? "✓" : "")</span>
-                            <span>Maquinaría de laboratorio</span>
-                        </div>
-                        <div class="checkbox-item">
-                            <span class="checkbox-box @(IsMaintenanceType("Cómputo") || IsMaintenanceType("TIC") || IsMaintenanceType("Comunicaciones") ? "checked" : "")">@(IsMaintenanceType("Cómputo") || IsMaintenanceType("TIC") || IsMaintenanceType("Comunicaciones") ? "✓" : "")</span>
-                            <span>Equipo de cómputo y comunicaciones</span>
-                        </div>
-                        <div class="checkbox-item">
-                            <span class="checkbox-box @(IsMaintenanceType("Infraestructura") || IsMaintenanceType("Eléctric") || IsMaintenanceType("Plomería") || IsMaintenanceType("Carpintería") ? "checked" : "")">@(IsMaintenanceType("Infraestructura") || IsMaintenanceType("Eléctric") || IsMaintenanceType("Plomería") || IsMaintenanceType("Carpintería") ? "✓" : "")</span>
-                            <span>Infraestructura</span>
-                        </div>
-                        <div class="checkbox-item">
-                            <span class="checkbox-box @(IsOtherMaintenanceType() ? "checked" : "")">@(IsOtherMaintenanceType() ? "✓" : "")</span>
-                            <span>Otros: @(IsOtherMaintenanceType() ? reporte.CategoriaNombre : "")</span>
-                        </div>
-                    </div>
+                <td class="type-label">Vehicular:</td>
+                <td class="type-checkbox">
+                    <span class="checkbox-x">@(IsMaintenanceType("Vehicular") ? "X" : "")</span>
+                </td>
+                <td class="type-label">Maquinaría de laboratorio:</td>
+                <td class="type-checkbox">
+                    <span class="checkbox-x">@(IsMaintenanceType("Maquinaria") || IsMaintenanceType("Laboratorio") ? "X" : "")</span>
                 </td>
             </tr>
-
-            <!-- Area and Date Row -->
+            
+            <!-- Row 2: Infraestructura | checkbox | Aseo de las áreas | checkbox -->
             <tr>
-                <td class="label-cell half-width">ÁREA SOLICITANTE</td>
-                <td class="value-cell half-width">@reporte.EdificioNombre @(reporte.SalonNombre != null ? $"- {reporte.SalonNombre}" : "")</td>
-                <td class="label-cell" style="width: 20%;">FECHA DE SOLICITUD</td>
-                <td class="value-cell" style="width: 20%;">@reporte.FechaReporte.ToString("dd/MM/yyyy")</td>
+                <td class="type-label">Infraestructura:</td>
+                <td class="type-checkbox">
+                    <span class="checkbox-x">@(IsMaintenanceType("Infraestructura") || IsMaintenanceType("Eléctric") || IsMaintenanceType("Plomería") || IsMaintenanceType("Carpintería") ? "X" : "")</span>
+                </td>
+                <td class="type-label">Aseo de las áreas:</td>
+                <td class="type-checkbox">
+                    <span class="checkbox-x">@(IsMaintenanceType("Aseo") ? "X" : "")</span>
+                </td>
             </tr>
-
-            <!-- Requester Name and Signature -->
+            
+            <!-- Row 3: Equipo de cómputo y comunicaciones | checkbox | Otros | checkbox -->
             <tr>
-                <td class="label-cell" colspan="2">NOMBRE Y FIRMA DEL SOLICITANTE</td>
-                <td class="value-cell" colspan="2">
-                    @reporte.ReportanteNombre<br>
-                    <small style="color: #666;">@reporte.ReportanteCorreo</small>
+                <td class="type-label">Equipo de cómputo y comunicaciones:</td>
+                <td class="type-checkbox">
+                    <span class="checkbox-x">@(IsMaintenanceType("Cómputo") || IsMaintenanceType("TIC") || IsMaintenanceType("Comunicaciones") ? "X" : "")</span>
+                </td>
+                <td class="type-label">Otros:</td>
+                <td class="type-checkbox">
+                    <span class="checkbox-x">@(IsOtherMaintenanceType() ? "X" : "")</span>
                 </td>
             </tr>
 
-            <!-- Description Section -->
+            <!-- ÁREA SOLICITANTE / FECHA DE SOLICITUD DE MANTENIMIENTO Row -->
+            <tr>
+                <td class="field-label">ÁREA SOLICITANTE:</td>
+                <td>@GetAreaSolicitante()</td>
+                <td class="field-label">FECHA DE SOLICITUD DE MANTENIMIENTO:</td>
+                <td>@FormatFecha(reporte.FechaReporte)</td>
+            </tr>
+
+            <!-- NOMBRE Y FIRMA DEL SOLICITANTE Row -->
+            <tr>
+                <td class="field-label">NOMBRE Y FIRMA DEL SOLICITANTE:</td>
+                <td colspan="3">C. @reporte.ReportanteNombre</td>
+            </tr>
+
+            <!-- DESCRIPCIÓN DEL SERVICIO SOLICITADO O FALLA A REPARAR Header -->
             <tr>
                 <td colspan="4" class="section-header">
-                    DESCRIPCIÓN DEL SERVICIO SOLICITADO O FALLA A REPARAR
+                    DESCRIPCIÓN DEL SERVICIO SOLICITADO O FALLA A REPARAR:
                 </td>
             </tr>
+            
+            <!-- Description content -->
             <tr>
-                <td colspan="4" class="description-area">
+                <td colspan="4" class="description-cell">
                     @reporte.Descripcion
+                    @if (!string.IsNullOrEmpty(reporte.EdificioNombre) || !string.IsNullOrEmpty(reporte.SalonNombre))
+                    {
+                        <br/><br/>
+                        <strong>Ubicación:</strong> @reporte.EdificioNombre @(reporte.SalonNombre != null ? $", {reporte.SalonNombre}" : "")
+                    }
                 </td>
             </tr>
-
-            @if (!string.IsNullOrEmpty(ultimaAccion))
-            {
-                <!-- Actions Section (if there are comments) -->
-                <tr>
-                    <td colspan="4" class="section-header">
-                        SERVICIO REALIZADO / ACCIONES TOMADAS
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="description-area">
-                        @ultimaAccion
-                        @if (!string.IsNullOrEmpty(fechaAccion))
-                        {
-                            <br><small><strong>Fecha:</strong> @fechaAccion</small>
-                        }
-                    </td>
-                </tr>
-            }
-
-            <!-- Status and Priority Row (extra info) -->
-            <tr>
-                <td class="label-cell">PRIORIDAD</td>
-                <td class="value-cell">@reporte.PrioridadNombre</td>
-                <td class="label-cell">ESTATUS</td>
-                <td class="value-cell">@reporte.EstadoNombre</td>
-            </tr>
-
-            @if (!string.IsNullOrEmpty(reporte.TecnicoNombre))
-            {
-                <tr>
-                    <td class="label-cell">TÉCNICO ASIGNADO</td>
-                    <td class="value-cell" colspan="3">@reporte.TecnicoNombre</td>
-                </tr>
-            }
         </table>
-
-        <!-- Signature Section -->
-        <div class="signature-section">
-            <div class="signature-line">
-                NOMBRE Y FIRMA DEL SOLICITANTE
-            </div>
-        </div>
 
         <!-- Footer -->
         <div class="print-footer">
@@ -378,8 +265,6 @@ else
 
     private ReporteDto? reporte;
     private bool isLoading = true;
-    private string ultimaAccion = "";
-    private string fechaAccion = "";
 
     // Known maintenance type keywords for checkbox matching
     private static readonly string[] VehicularKeywords = { "vehicular", "vehículo", "auto", "camioneta", "transporte" };
@@ -413,18 +298,6 @@ else
             {
                 reporte = response.Data;
             }
-
-            // Load latest comment
-            var commentsResponse = await ApiService.GetComentariosAsync(Id);
-            if (commentsResponse?.Success == true && commentsResponse.Data != null && commentsResponse.Data.Any())
-            {
-                var latestComment = commentsResponse.Data.FirstOrDefault();
-                if (latestComment != null)
-                {
-                    ultimaAccion = latestComment.Comentario ?? "";
-                    fechaAccion = latestComment.FechaComentario.ToString("dd/MM/yyyy HH:mm");
-                }
-            }
         }
         catch (Exception ex)
         {
@@ -454,5 +327,23 @@ else
         bool isComputo = ComputoKeywords.Any(k => categoria.Contains(k));
         
         return !isVehicular && !isMaquinaria && !isInfraestructura && !isAseo && !isComputo;
+    }
+
+    private string GetAreaSolicitante()
+    {
+        // Return department/area from user's department if available, otherwise use building name
+        if (reporte?.ReportanteDepartamento != null && !string.IsNullOrEmpty(reporte.ReportanteDepartamento))
+        {
+            return reporte.ReportanteDepartamento;
+        }
+        return reporte?.EdificioNombre ?? "";
+    }
+
+    private string FormatFecha(DateTime fecha)
+    {
+        // Format as "22 de octubre de 2025"
+        var meses = new[] { "", "enero", "febrero", "marzo", "abril", "mayo", "junio", 
+                          "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre" };
+        return $"{fecha.Day} de {meses[fecha.Month]} de {fecha.Year}";
     }
 }

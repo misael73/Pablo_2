@@ -23,6 +23,7 @@ public class ReporteDto
     public int IdReportante { get; set; }
     public string? ReportanteNombre { get; set; }
     public string? ReportanteCorreo { get; set; }
+    public string? ReportanteDepartamento { get; set; }
     public int? IdAsignadoA { get; set; }
     public string? TecnicoNombre { get; set; }
     public DateTime FechaReporte { get; set; }
