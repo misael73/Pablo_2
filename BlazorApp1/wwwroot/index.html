@@ -12,6 +12,30 @@
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="BlazorApp1.styles.css" rel="stylesheet" />
     
+    <!-- Global print styles to hide Blazor UI when printing -->
+    <style>
+        @media print {
+            #app > svg.loading-progress,
+            #app > .loading-progress-text,
+            #blazor-error-ui,
+            .no-print {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                width: 0 !important;
+                overflow: hidden !important;
+                position: absolute !important;
+                left: -9999px !important;
+            }
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+    
     <!-- Google Sign-In SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     

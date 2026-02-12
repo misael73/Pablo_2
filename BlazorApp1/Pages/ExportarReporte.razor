@@ -22,182 +22,41 @@ else if (reporte == null)
 }
 else
 {
-    <!-- Print-ready document matching TECNM template -->
+    <!-- Print styles inline for this page only -->
     <style>
-        @@page {
-            size: letter;
-            margin: 1.5cm;
+        * {
+            box-sizing: border-box;
         }
         
         body {
             font-family: Arial, sans-serif;
-            font-size: 10pt;
-            line-height: 1.3;
-            color: #000;
+            font-size: 11pt;
             margin: 0;
             padding: 0;
             background-color: white;
         }
         
-        .print-document {
+        .document-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 15px;
+            padding: 20px;
             background-color: white;
         }
         
-        .header-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 10px;
-        }
-        
-        .header-table td {
-            vertical-align: middle;
-            padding: 5px;
-        }
-        
-        .logo-cell {
-            width: 120px;
-            text-align: center;
-        }
-        
-        .logo-img {
-            height: 60px;
-            width: auto;
-        }
-        
-        .title-cell {
-            text-align: center;
-        }
-        
-        .title-cell h2 {
-            margin: 0;
-            font-size: 14pt;
-            color: #003366;
-        }
-        
-        .title-cell h3 {
-            margin: 5px 0 0 0;
-            font-size: 12pt;
-            font-weight: normal;
-            color: #333;
-        }
-        
-        .folio-box {
-            border: 2px solid #000;
-            padding: 8px 15px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 12pt;
-            min-width: 100px;
-        }
-        
-        .main-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        
-        .main-table td, .main-table th {
-            border: 1px solid #000;
-            padding: 6px 8px;
-            vertical-align: top;
-        }
-        
-        .section-header {
-            background-color: #d9d9d9;
-            font-weight: bold;
-            text-align: center;
-            font-size: 10pt;
-        }
-        
-        .checkbox-section {
-            padding: 10px;
-        }
-        
-        .checkbox-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 5px 20px;
-        }
-        
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 9pt;
-        }
-        
-        .checkbox-box {
-            width: 14px;
-            height: 14px;
-            border: 1px solid #000;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 10pt;
-        }
-        
-        .checkbox-box.checked {
-            background-color: #000;
-            color: white;
-        }
-        
-        .label-cell {
-            background-color: #f0f0f0;
-            font-weight: bold;
-            width: 35%;
-        }
-        
-        .value-cell {
-            width: 65%;
-        }
-        
-        .half-width {
-            width: 50%;
-        }
-        
-        .description-area {
-            min-height: 120px;
-            white-space: pre-wrap;
-        }
-        
-        .signature-section {
-            margin-top: 30px;
-            text-align: center;
-        }
-        
-        .signature-line {
-            width: 300px;
-            border-top: 1px solid #000;
-            margin: 60px auto 5px auto;
-            padding-top: 5px;
-            font-size: 9pt;
-        }
-        
-        .print-footer {
-            margin-top: 20px;
+        .print-buttons {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
             text-align: right;
-            font-size: 8pt;
-            color: #666;
         }
         
-        .no-print {
-            margin-bottom: 15px;
-            text-align: right;
-            padding: 10px;
-            background-color: #f5f5f5;
-            border-radius: 5px;
-        }
-        
-        .no-print button {
+        .print-buttons button {
             padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
             margin-left: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
             font-size: 14px;
         }
         
@@ -206,189 +65,182 @@ else
             color: white;
         }
         
-        .btn-close {
-            background-color: #666;
+        .btn-back {
+            background-color: #6c757d;
             color: white;
         }
         
+        .document-content {
+            border: 2px solid #000;
+        }
+        
+        .header-row {
+            display: flex;
+            border-bottom: 2px solid #000;
+        }
+        
+        .folio-label {
+            width: 120px;
+            background-color: #d9d9d9;
+            padding: 10px;
+            font-weight: bold;
+            text-align: center;
+            border-right: 1px solid #000;
+        }
+        
+        .folio-value {
+            flex: 1;
+            padding: 10px;
+            font-weight: bold;
+            font-size: 14pt;
+        }
+        
+        .section-header {
+            background-color: #d9d9d9;
+            padding: 8px 10px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #000;
+        }
+        
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: 1fr 50px 1fr 50px;
+            border-bottom: 1px solid #000;
+        }
+        
+        .checkbox-label {
+            padding: 8px 10px;
+            border-right: 1px solid #000;
+        }
+        
+        .checkbox-box {
+            padding: 8px 10px;
+            text-align: center;
+            border-right: 1px solid #000;
+            font-weight: bold;
+        }
+        
+        .checkbox-box:last-child {
+            border-right: none;
+        }
+        
+        .field-row {
+            display: flex;
+            border-bottom: 1px solid #000;
+        }
+        
+        .field-label {
+            width: 40%;
+            padding: 8px 10px;
+            background-color: #f0f0f0;
+            font-weight: bold;
+            border-right: 1px solid #000;
+        }
+        
+        .field-value {
+            flex: 1;
+            padding: 8px 10px;
+        }
+        
+        .description-content {
+            padding: 15px;
+            min-height: 150px;
+            white-space: pre-wrap;
+        }
+        
+        .footer {
+            text-align: right;
+            padding: 10px;
+            font-size: 9pt;
+            color: #666;
+        }
+        
         @@media print {
-            .no-print { 
-                display: none !important; 
-                visibility: hidden !important;
-                height: 0 !important;
-                width: 0 !important;
-                overflow: hidden !important;
+            .print-buttons {
+                display: none !important;
             }
-            body { 
-                padding: 0; 
-                margin: 0; 
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
+            
+            body {
+                margin: 0;
+                padding: 0;
             }
-            .print-document { 
-                max-width: none; 
+            
+            .document-container {
+                max-width: none;
                 padding: 0;
                 margin: 0;
             }
-            html, body {
-                height: auto !important;
-                overflow: visible !important;
-            }
         }
     </style>
-
-    <div class="print-document">
-        <!-- Print Button (hidden when printing) -->
-        <div class="no-print">
+    
+    <div class="document-container">
+        <!-- Print buttons - hidden when printing -->
+        <div class="print-buttons">
             <button class="btn-print" onclick="window.print()">
-                🖨️ Imprimir / Guardar como PDF
+                🖨️ Imprimir / Guardar PDF
             </button>
-            <button class="btn-close" onclick="history.back()">
-                ✖ Cerrar
+            <button class="btn-back" onclick="history.back()">
+                ← Volver
             </button>
         </div>
-
-        <!-- Header with logos and title -->
-        <table class="header-table">
-            <tr>
-                <td class="logo-cell">
-                    <!-- TECNM Logo placeholder - blue square with TECNM text -->
-                    <div style="background-color: #003366; color: white; padding: 10px; font-size: 10pt; font-weight: bold;">
-                        TECNM
-                    </div>
-                </td>
-                <td class="title-cell">
-                    <h2>TECNM CAMPUS CIUDAD SERDÁN</h2>
-                    <h3>Solicitud de mantenimiento correctivo</h3>
-                </td>
-                <td class="logo-cell">
-                    <!-- Secondary logo placeholder -->
-                    <div style="background-color: #8B0000; color: white; padding: 10px; font-size: 10pt; font-weight: bold;">
-                        ITCS
-                    </div>
-                </td>
-                <td style="width: 120px; text-align: right;">
-                    <div class="folio-box">
-                        FOLIO<br>
-                        @reporte.Folio
-                    </div>
-                </td>
-            </tr>
-        </table>
-
-        <!-- Main form content -->
-        <table class="main-table">
-            <!-- Maintenance Type Section -->
-            <tr>
-                <td colspan="4" class="section-header">
-                    TIPO DE MANTENIMIENTO SOLICITADO
-                </td>
-            </tr>
-            <tr>
-                <td colspan="4" class="checkbox-section">
-                    <div class="checkbox-grid">
-                        <div class="checkbox-item">
-                            <span class="checkbox-box @(IsMaintenanceType("Vehicular") ? "checked" : "")">@(IsMaintenanceType("Vehicular") ? "✓" : "")</span>
-                            <span>Vehicular</span>
-                        </div>
-                        <div class="checkbox-item">
-                            <span class="checkbox-box @(IsMaintenanceType("Aseo") ? "checked" : "")">@(IsMaintenanceType("Aseo") ? "✓" : "")</span>
-                            <span>Aseo de las áreas</span>
-                        </div>
-                        <div class="checkbox-item">
-                            <span class="checkbox-box @(IsMaintenanceType("Maquinaria") || IsMaintenanceType("Laboratorio") ? "checked" : "")">@(IsMaintenanceType("Maquinaria") || IsMaintenanceType("Laboratorio") ? "✓" : "")</span>
-                            <span>Maquinaría de laboratorio</span>
-                        </div>
-                        <div class="checkbox-item">
-                            <span class="checkbox-box @(IsMaintenanceType("Cómputo") || IsMaintenanceType("TIC") || IsMaintenanceType("Comunicaciones") ? "checked" : "")">@(IsMaintenanceType("Cómputo") || IsMaintenanceType("TIC") || IsMaintenanceType("Comunicaciones") ? "✓" : "")</span>
-                            <span>Equipo de cómputo y comunicaciones</span>
-                        </div>
-                        <div class="checkbox-item">
-                            <span class="checkbox-box @(IsMaintenanceType("Infraestructura") || IsMaintenanceType("Eléctric") || IsMaintenanceType("Plomería") || IsMaintenanceType("Carpintería") ? "checked" : "")">@(IsMaintenanceType("Infraestructura") || IsMaintenanceType("Eléctric") || IsMaintenanceType("Plomería") || IsMaintenanceType("Carpintería") ? "✓" : "")</span>
-                            <span>Infraestructura</span>
-                        </div>
-                        <div class="checkbox-item">
-                            <span class="checkbox-box @(IsOtherMaintenanceType() ? "checked" : "")">@(IsOtherMaintenanceType() ? "✓" : "")</span>
-                            <span>Otros: @(IsOtherMaintenanceType() ? reporte.CategoriaNombre : "")</span>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-
-            <!-- Area and Date Row -->
-            <tr>
-                <td class="label-cell half-width">ÁREA SOLICITANTE</td>
-                <td class="value-cell half-width">@reporte.EdificioNombre @(reporte.SalonNombre != null ? $"- {reporte.SalonNombre}" : "")</td>
-                <td class="label-cell" style="width: 20%;">FECHA DE SOLICITUD</td>
-                <td class="value-cell" style="width: 20%;">@reporte.FechaReporte.ToString("dd/MM/yyyy")</td>
-            </tr>
-
-            <!-- Requester Name and Signature -->
-            <tr>
-                <td class="label-cell" colspan="2">NOMBRE Y FIRMA DEL SOLICITANTE</td>
-                <td class="value-cell" colspan="2">
-                    @reporte.ReportanteNombre<br>
-                    <small style="color: #666;">@reporte.ReportanteCorreo</small>
-                </td>
-            </tr>
-
-            <!-- Description Section -->
-            <tr>
-                <td colspan="4" class="section-header">
-                    DESCRIPCIÓN DEL SERVICIO SOLICITADO O FALLA A REPARAR
-                </td>
-            </tr>
-            <tr>
-                <td colspan="4" class="description-area">
-                    @reporte.Descripcion
-                </td>
-            </tr>
-
-            @if (!string.IsNullOrEmpty(ultimaAccion))
-            {
-                <!-- Actions Section (if there are comments) -->
-                <tr>
-                    <td colspan="4" class="section-header">
-                        SERVICIO REALIZADO / ACCIONES TOMADAS
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="description-area">
-                        @ultimaAccion
-                        @if (!string.IsNullOrEmpty(fechaAccion))
-                        {
-                            <br><small><strong>Fecha:</strong> @fechaAccion</small>
-                        }
-                    </td>
-                </tr>
-            }
-
-            <!-- Status and Priority Row (extra info) -->
-            <tr>
-                <td class="label-cell">PRIORIDAD</td>
-                <td class="value-cell">@reporte.PrioridadNombre</td>
-                <td class="label-cell">ESTATUS</td>
-                <td class="value-cell">@reporte.EstadoNombre</td>
-            </tr>
-
-            @if (!string.IsNullOrEmpty(reporte.TecnicoNombre))
-            {
-                <tr>
-                    <td class="label-cell">TÉCNICO ASIGNADO</td>
-                    <td class="value-cell" colspan="3">@reporte.TecnicoNombre</td>
-                </tr>
-            }
-        </table>
-
-        <!-- Signature Section -->
-        <div class="signature-section">
-            <div class="signature-line">
-                NOMBRE Y FIRMA DEL SOLICITANTE
+        
+        <!-- Document content -->
+        <div class="document-content">
+            <!-- FOLIO -->
+            <div class="header-row">
+                <div class="folio-label">FOLIO</div>
+                <div class="folio-value">@reporte.Folio</div>
             </div>
+            
+            <!-- TIPO DE MANTENIMIENTO SOLICITADO -->
+            <div class="section-header">TIPO DE MANTENIMIENTO SOLICITADO</div>
+            
+            <div class="checkbox-grid">
+                <div class="checkbox-label">Vehicular</div>
+                <div class="checkbox-box">@(IsMaintenanceType("Vehicular") ? "X" : "")</div>
+                <div class="checkbox-label">Maquinaría de laboratorio</div>
+                <div class="checkbox-box">@(IsMaintenanceType("Maquinaria") || IsMaintenanceType("Laboratorio") ? "X" : "")</div>
+            </div>
+            
+            <div class="checkbox-grid">
+                <div class="checkbox-label">Infraestructura</div>
+                <div class="checkbox-box">@(IsMaintenanceType("Infraestructura") || IsMaintenanceType("Eléctric") || IsMaintenanceType("Plomería") ? "X" : "")</div>
+                <div class="checkbox-label">Aseo de las áreas</div>
+                <div class="checkbox-box">@(IsMaintenanceType("Aseo") || IsMaintenanceType("Limpieza") ? "X" : "")</div>
+            </div>
+            
+            <div class="checkbox-grid">
+                <div class="checkbox-label">Equipo de cómputo y comunicaciones</div>
+                <div class="checkbox-box">@(IsMaintenanceType("Cómputo") || IsMaintenanceType("TIC") || IsMaintenanceType("Comunicaciones") ? "X" : "")</div>
+                <div class="checkbox-label">Otros</div>
+                <div class="checkbox-box">@(IsOtherMaintenanceType() ? "X" : "")</div>
+            </div>
+            
+            <!-- ÁREA SOLICITANTE / FECHA -->
+            <div class="field-row">
+                <div class="field-label">ÁREA SOLICITANTE</div>
+                <div class="field-value" style="border-right: 1px solid #000;">@(reporte.ReportanteDepartamento ?? reporte.EdificioNombre ?? "")</div>
+                <div class="field-label" style="width: 30%;">FECHA DE SOLICITUD DE MANTENIMIENTO</div>
+                <div class="field-value" style="width: 15%;">@reporte.FechaReporte.ToString("dd/MM/yyyy")</div>
+            </div>
+            
+            <!-- NOMBRE Y FIRMA DEL SOLICITANTE -->
+            <div class="field-row">
+                <div class="field-label">NOMBRE Y FIRMA DEL SOLICITANTE</div>
+                <div class="field-value">C. @reporte.ReportanteNombre</div>
+            </div>
+            
+            <!-- DESCRIPCIÓN DEL SERVICIO -->
+            <div class="section-header">DESCRIPCIÓN DEL SERVICIO SOLICITADO O FALLA A REPARAR</div>
+            <div class="description-content">
+                @reporte.Descripcion
+            </div>
+            
         </div>
-
+        
         <!-- Footer -->
-        <div class="print-footer">
+        <div class="footer">
             Rev. Noviembre 2023
         </div>
     </div>
@@ -400,15 +252,6 @@ else
 
     private ReporteDto? reporte;
     private bool isLoading = true;
-    private string ultimaAccion = "";
-    private string fechaAccion = "";
-
-    // Known maintenance type keywords for checkbox matching
-    private static readonly string[] VehicularKeywords = { "vehicular", "vehículo", "auto", "camioneta", "transporte" };
-    private static readonly string[] MaquinariaKeywords = { "maquinaria", "laboratorio", "equipo de lab" };
-    private static readonly string[] InfraestructuraKeywords = { "infraestructura", "eléctric", "plomería", "carpintería", "pintura", "albañilería", "herrería" };
-    private static readonly string[] AseoKeywords = { "aseo", "limpieza", "jardinería" };
-    private static readonly string[] ComputoKeywords = { "cómputo", "computo", "tic", "comunicaciones", "red", "internet", "software", "hardware", "pc", "computadora" };
 
     protected override async Task OnInitializedAsync()
     {
@@ -429,23 +272,10 @@ else
 
         try
         {
-            // Load report
             var response = await ApiService.GetReporteAsync(Id);
             if (response?.Success == true && response.Data != null)
             {
                 reporte = response.Data;
-            }
-
-            // Load latest comment
-            var commentsResponse = await ApiService.GetComentariosAsync(Id);
-            if (commentsResponse?.Success == true && commentsResponse.Data != null && commentsResponse.Data.Any())
-            {
-                var latestComment = commentsResponse.Data.FirstOrDefault();
-                if (latestComment != null)
-                {
-                    ultimaAccion = latestComment.Comentario ?? "";
-                    fechaAccion = latestComment.FechaComentario.ToString("dd/MM/yyyy HH:mm");
-                }
             }
         }
         catch (Exception ex)
@@ -468,13 +298,7 @@ else
         if (reporte?.CategoriaNombre == null) return false;
         var categoria = reporte.CategoriaNombre.ToLower();
         
-        // Check if it doesn't match any of the known categories
-        bool isVehicular = VehicularKeywords.Any(k => categoria.Contains(k));
-        bool isMaquinaria = MaquinariaKeywords.Any(k => categoria.Contains(k));
-        bool isInfraestructura = InfraestructuraKeywords.Any(k => categoria.Contains(k));
-        bool isAseo = AseoKeywords.Any(k => categoria.Contains(k));
-        bool isComputo = ComputoKeywords.Any(k => categoria.Contains(k));
-        
-        return !isVehicular && !isMaquinaria && !isInfraestructura && !isAseo && !isComputo;
+        string[] knownKeywords = { "vehicular", "maquinaria", "laboratorio", "infraestructura", "eléctric", "plomería", "aseo", "limpieza", "cómputo", "computo", "tic", "comunicaciones" };
+        return !knownKeywords.Any(k => categoria.Contains(k));
     }
 }
