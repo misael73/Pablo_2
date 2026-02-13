@@ -1,20 +1,69 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using Sirefi.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+
+// Configure Entity Framework with SQL Server
+builder.Services.AddDbContext<FormsDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Configure CORS for Blazor WebAssembly
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorApp", policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost:5201",
+                "https://localhost:7070",
+                "http://localhost:5000",
+                "https://localhost:5001",
+                "http://localhost:5050",
+                "http://localhost:5254",
+                "https://localhost:7254")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
+// Configure Swagger/OpenAPI
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "SIREFI API",
+        Version = "v1",
+        Description = "API para el Sistema de Reporte de Fallas e Incidencias (SIREFI)",
+        Contact = new OpenApiContact
+        {
+            Name = "SIREFI Team",
+            Email = "sirefi@tecnm.mx"
+        }
+    });
+});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "SIREFI API v1");
+        c.RoutePrefix = "swagger"; // Swagger UI at /swagger
+    });
 }
 
-app.UseHttpsRedirection();
+// Don't use HTTPS redirection when API is on HTTP
+// app.UseHttpsRedirection();
+
+app.UseCors("AllowBlazorApp");
 
 app.UseAuthorization();
 

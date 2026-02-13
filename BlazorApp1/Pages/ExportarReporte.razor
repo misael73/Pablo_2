@@ -1,0 +1,338 @@
+@page "/exportar-reporte/{Id:int}"
+@layout EmptyLayout
+@attribute [AllowAnonymous]
+@inject ApiService ApiService
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Solicitud de Mantenimiento - @(reporte?.Folio ?? "Cargando...")</PageTitle>
+
+@if (isLoading)
+{
+    <div class="loading-container no-print" style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+        <p>Cargando documento...</p>
+    </div>
+}
+else if (reporte == null)
+{
+    <div class="error-container no-print" style="text-align: center; padding: 40px;">
+        <h2>Reporte no encontrado</h2>
+        <p>El reporte que buscas no existe o no tienes permiso para verlo.</p>
+        <button onclick="window.history.back()" style="padding: 10px 20px; cursor: pointer;">← Volver</button>
+    </div>
+}
+else
+{
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .page-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 0;
+        }
+        
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f8f8;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .action-buttons button {
+            padding: 10px 25px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            background: white;
+        }
+        
+        .action-buttons button:hover {
+            background: #f0f0f0;
+        }
+        
+        .btn-print {
+            background: #4a90d9 !important;
+            color: white !important;
+            border-color: #4a90d9 !important;
+        }
+        
+        .btn-print:hover {
+            background: #3a7fc8 !important;
+        }
+        
+        /* Document content */
+        .document-content {
+            padding: 0 30px 30px 30px;
+        }
+        
+        /* Main table */
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #000;
+        }
+        
+        .main-table td, .main-table th {
+            border: 1px solid #000;
+            padding: 8px 10px;
+            vertical-align: top;
+        }
+        
+        /* Folio header */
+        .folio-row td {
+            text-align: right;
+            font-weight: bold;
+            background: #f0f0f0;
+        }
+        
+        .folio-value {
+            background: white !important;
+            text-align: center !important;
+            font-size: 14pt;
+        }
+        
+        /* Section headers */
+        .section-header-row td {
+            background: #e0e0e0;
+            font-weight: bold;
+            text-align: center;
+            font-size: 10pt;
+        }
+        
+        /* Checkbox table */
+        .checkbox-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .checkbox-table td {
+            border: 1px solid #000;
+            padding: 6px 8px;
+            font-size: 10pt;
+        }
+        
+        .checkbox-cell {
+            width: 30px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 12pt;
+        }
+        
+        /* Info rows */
+        .info-label {
+            background: #f0f0f0;
+            font-weight: bold;
+            font-size: 9pt;
+            width: 50%;
+        }
+        
+        .info-value {
+            font-size: 10pt;
+        }
+        
+        /* Description area */
+        .description-cell {
+            min-height: 100px;
+            padding: 15px !important;
+            font-size: 10pt;
+            line-height: 1.5;
+        }
+        
+        /* Footer */
+        .document-footer {
+            text-align: right;
+            padding: 10px 30px;
+            font-size: 9pt;
+            color: #666;
+        }
+        
+        /* Print styles */
+        @@media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+            }
+            
+            .action-buttons,
+            .no-print {
+                display: none !important;
+            }
+            
+            .page-container {
+                box-shadow: none !important;
+                max-width: 100% !important;
+            }
+            
+            .document-content {
+                padding: 20px !important;
+            }
+        }
+    </style>
+    
+    <div class="page-container">
+        <!-- Action Buttons (hidden when printing) -->
+        <div class="action-buttons no-print">
+            <button class="btn-back" @onclick="GoBack">← Volver</button>
+            <button class="btn-print" onclick="window.print()">Imprimir / Guardar PDF</button>
+        </div>
+        
+        <div class="document-content">
+            <table class="main-table">
+                <!-- FOLIO -->
+                <tr class="folio-row">
+                    <td colspan="3" style="width: 80%;">FOLIO</td>
+                    <td class="folio-value">@reporte.Folio</td>
+                </tr>
+                
+                <!-- TIPO DE MANTENIMIENTO SOLICITADO -->
+                <tr class="section-header-row">
+                    <td colspan="4">TIPO DE MANTENIMIENTO SOLICITADO</td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="padding: 0;">
+                        <table class="checkbox-table">
+                            <tr>
+                                <td>Vehicular</td>
+                                <td class="checkbox-cell">@(IsMaintenanceType("Vehicular") ? "X" : "")</td>
+                                <td>Maquinaria de laboratorio</td>
+                                <td class="checkbox-cell">@(IsMaintenanceType("Maquinaria") || IsMaintenanceType("Laboratorio") ? "X" : "")</td>
+                            </tr>
+                            <tr>
+                                <td>Infraestructura</td>
+                                <td class="checkbox-cell">@(IsMaintenanceType("Infraestructura") || IsMaintenanceType("Eléctric") || IsMaintenanceType("Plomería") ? "X" : "")</td>
+                                <td>Aseo de las áreas</td>
+                                <td class="checkbox-cell">@(IsMaintenanceType("Aseo") || IsMaintenanceType("Limpieza") ? "X" : "")</td>
+                            </tr>
+                            <tr>
+                                <td>Equipo de cómputo y comunicaciones</td>
+                                <td class="checkbox-cell">@(IsMaintenanceType("Cómputo") || IsMaintenanceType("Computo") || IsMaintenanceType("TIC") || IsMaintenanceType("Comunicaciones") ? "X" : "")</td>
+                                <td>Otros @(IsOtherMaintenanceType() ? $"({reporte.CategoriaNombre})" : "")</td>
+                                <td class="checkbox-cell">@(IsOtherMaintenanceType() ? "X" : "")</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                
+                <!-- ÁREA SOLICITANTE / FECHA -->
+                <tr>
+                    <td class="info-label" colspan="2">ÁREA SOLICITANTE</td>
+                    <td class="info-label" colspan="2">FECHA DE SOLICITUD DE MANTENIMIENTO</td>
+                </tr>
+                <tr>
+                    <td class="info-value" colspan="2">@(reporte.ReportanteDepartamento ?? reporte.EdificioNombre ?? "No especificado")</td>
+                    <td class="info-value" colspan="2">@reporte.FechaReporte.ToString("dd 'de' MMMM 'de' yyyy", new System.Globalization.CultureInfo("es-MX"))</td>
+                </tr>
+                
+                <!-- NOMBRE Y FIRMA DEL SOLICITANTE -->
+                <tr class="section-header-row">
+                    <td colspan="4">NOMBRE Y FIRMA DEL SOLICITANTE</td>
+                </tr>
+                <tr>
+                    <td class="info-value" colspan="4" style="min-height: 50px;">
+                        C. @reporte.ReportanteNombre
+                        @if (!string.IsNullOrEmpty(reporte.SalonNombre))
+                        {
+                            <br/><small style="color: #666;">Ubicación: @reporte.EdificioNombre - @reporte.SalonNombre</small>
+                        }
+                    </td>
+                </tr>
+                
+                <!-- DESCRIPCIÓN DEL SERVICIO -->
+                <tr class="section-header-row">
+                    <td colspan="4">DESCRIPCIÓN DEL SERVICIO SOLICITADO O FALLA A REPARAR</td>
+                </tr>
+                <tr>
+                    <td class="description-cell" colspan="4">
+                        @reporte.Descripcion
+                    </td>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- Footer -->
+        <div class="document-footer">
+            Rev. Noviembre 2023
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private ReporteDto? reporte;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var currentUser = await AuthStateProvider.GetCurrentUserAsync();
+
+        if (currentUser == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+
+        try
+        {
+            var response = await ApiService.GetReporteAsync(Id);
+            if (response?.Success == true && response.Data != null)
+            {
+                reporte = response.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+
+        isLoading = false;
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/mis-reportes");
+    }
+
+    private bool IsMaintenanceType(string keyword)
+    {
+        if (reporte?.CategoriaNombre == null) return false;
+        var categoria = reporte.CategoriaNombre.ToLower();
+        return categoria.Contains(keyword.ToLower());
+    }
+
+    private bool IsOtherMaintenanceType()
+    {
+        if (reporte?.CategoriaNombre == null) return false;
+        var categoria = reporte.CategoriaNombre.ToLower();
+        
+        string[] knownKeywords = { "vehicular", "maquinaria", "laboratorio", "infraestructura", "eléctric", "plomería", "aseo", "limpieza", "cómputo", "computo", "tic", "comunicaciones" };
+        return !knownKeywords.Any(k => categoria.Contains(k));
+    }
+}
